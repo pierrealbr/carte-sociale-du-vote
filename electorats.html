@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Électorat par candidat · Carte sociale du vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<nav class="onglets" aria-label="Pages du site"><a href="index.html">Carte</a><a href="electorats.html" aria-current="page">Électorat par candidat</a><a href="methodes.html">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
+<div class="ep">
+  <header class="ep-tete">
+    <div>
+      <h1>Répartition de l'électorat de chaque candidat</h1>
+      <p class="sub">Chaque pyramide représente les électeurs d'un candidat. Leur quantité totale est proportionnelle à ses voix, et ils sont placés en priorité dans les cases où sa part est la plus élevée. Une case âge × diplôme entièrement remplie correspond à la totalité de ses inscrits.</p>
+    </div>
+    <div class="ep-ctl">
+      <div class="ctl">
+        <label for="hyp">Hypothèse de candidatures</label>
+        <select id="hyp"></select>
+      </div>
+      <div class="ctl">
+        <div class="row"><label for="conc">Concentration</label><output id="conc_o"></output></div>
+        <input type="range" id="conc" min="1" max="20" step="1" value="8">
+        <div class="ends"><span>Selon les parts</span><span>Bastions d'abord</span></div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label for="boost">Renforcement</label><output id="boost_o"></output></div>
+        <input type="range" id="boost" min="1" max="3" step="0.1" value="1">
+        <div class="ends"><span>Fidèle aux voix</span><span>Présence accentuée</span></div>
+      </div>
+    </div>
+  </header>
+  <div class="ep-sondage" id="sondage"></div>
+
+  <div class="ep-corps">
+    <section class="ep-tout" aria-label="Tous les électorats superposés">
+      <div class="t"><b>Électorats superposés</b><span class="liens"><button type="button" class="linkbtn" id="pttous">Tous les candidats</button><button type="button" class="linkbtn" id="ptaucun">Aucun</button></span></div>
+      <div class="ptall-box"><canvas id="ptall" role="img" aria-label="Les électorats des candidats choisis, superposés"></canvas><p class="ptvide" id="ptvide" hidden>Sélectionnez des candidats ci-dessous pour afficher leur électorat.</p></div>
+      <div class="pt-leg" id="ptleg" role="group" aria-label="Candidats superposés (cliquer pour retirer ou remettre)"></div>
+      <p class="pt-aide">Un clic sur un nom le retire de la superposition ou l'y ajoute.</p>
+    </section>
+    <section class="pt-grille" id="ptgrid" aria-label="Un électorat par candidat"></section>
+  </div>
+
+  
+  <div class="pt-pied">
+    <div class="pt-cle"><span class="tag">Épaisseur de la couche</span><i></i><div class="ends"><span>aucune</span><span>couche pleine</span></div></div>
+    <p>Dans chaque case, l'épaisseur de la couche est égale à la part du candidat, élevée à la puissance fixée par le réglage de concentration, sans pouvoir dépasser une couche pleine ; la quantité totale reste égale au nombre de voix. Avec une concentration de 1, l'épaisseur correspond exactement à la part du candidat. Le renforcement multiplie cette épaisseur par un facteur, toujours dans la limite d'une couche pleine : au-delà de 1, la surface n'est plus proportionnelle aux voix, mais la présence de l'électorat devient plus visible. La barre placée sous chaque pyramide indique le nombre de voix, à la même échelle pour tous les candidats. L'âge figure en ordonnée ; les niveaux inférieurs ou égaux au baccalauréat sont à gauche, l'enseignement supérieur à droite. Les parts sont lissées sur quelques années d'âge.</p>
+  </div>
+</div>
+<script src="registre.js"></script>
+<script src="common.js"></script>
+<script src="pyramides.js"></script>
+<script src="electorats.js"></script>
+</body>
+</html>

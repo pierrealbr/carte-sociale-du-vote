@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Méthodes · Carte sociale du vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<nav class="onglets" aria-label="Pages du site"><a href="index.html">Carte</a><a href="electorats.html">Électorat par candidat</a><a href="methodes.html" aria-current="page">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
+<article class="doc construction">
+  <h1>Méthodes</h1>
+  <p class="chapo">Cette page décrit la construction de la pyramide, depuis les fichiers de l'INSEE et les notices des sondages jusqu'au dessin en taches. Pour chaque étape, elle présente les données utilisées, les calculs, les hypothèses retenues, leur fiabilité et les améliorations envisageables.</p>
+
+  <section class="encadre">
+    <h2>Objet</h2>
+    <p class="resume">Les 47,8 millions d'inscrits sur les listes électorales sont répartis selon leur âge, de 18 à 100 ans et plus, et leur niveau de diplôme, en six niveaux allant de l'absence de diplôme au bac+5. Pour chaque case, on estime le nombre d'inscrits et la répartition de leurs votes, puis chaque candidat est représenté par une surface proportionnelle à ses voix. La principale difficulté tient à ce qu'aucun sondage ne publie le vote croisé par âge et par diplôme : ce croisement doit être reconstitué, selon les étapes décrites ci-dessous.</p>
+    <details class="detail">
+    <summary>Formulation mathématique</summary>
+    <p>Les 47,8 millions d'inscrits sont répartis en 498 cases : 83 âges (de 18 à 100 ans et plus) × 6 niveaux de diplôme. Pour chaque case, on cherche à estimer deux quantités :</p>
+    <ul>
+      <li><var>N</var>(<var>a</var>, <var>d</var>), le nombre d'inscrits d'âge <var>a</var> et de diplôme <var>d</var> ;</li>
+      <li><var>s<sub>k</sub></var>(<var>a</var>, <var>d</var>), la part de ces inscrits qui vote pour le candidat <var>k</var> ou qui s'abstient, avec Σ<sub><var>k</var></sub> <var>s<sub>k</sub></var> = 1 dans chaque case.</li>
+    </ul>
+    <p>Chaque candidat est alors représenté par une surface proportionnelle à ses voix :</p>
+    <p class="formule">Voix<sub><var>k</var></sub> = Σ<sub><var>a</var>, <var>d</var></sub> <var>N</var>(<var>a</var>, <var>d</var>) × <var>s<sub>k</sub></var>(<var>a</var>, <var>d</var>)</p>
+    <p>Aucune source ne fournit directement <var>s<sub>k</sub></var>(<var>a</var>, <var>d</var>). Les sondages publient le vote par âge, et parfois par diplôme, mais jamais le croisement des deux. L'ensemble de la construction vise à reconstituer ce croisement de la manière la plus vraisemblable.</p>
+    </details>
+  </section>
+
+  <p class="mode-lecture">Chaque étape s'ouvre sur un résumé ; l'explication détaillée (données, formules, hypothèses, fiabilité) peut être dépliée en dessous. <button type="button" class="btn" id="toutdeplier">Tout déplier</button></p>
+  <ol class="chaine" aria-label="Les étapes">
+    <li><a href="#e1"><b>1</b> Inscrits par âge × diplôme</a></li>
+    <li><a href="#e2"><b>2</b> Participation</a></li>
+    <li><a href="#e3"><b>3</b> Profils de vote (Cevipof)</a></li>
+    <li><a href="#e4"><b>4</b> Profils moyens des instituts</a></li>
+    <li><a href="#e5"><b>5</b> Calage sur le sondage affiché</a></li>
+    <li><a href="#e6"><b>6</b> Représentation en taches</a></li>
+    <li><a href="#electorats"><b>7</b> Électorat par candidat</a></li>
+    <li><a href="#bilan"><b>8</b> Bilan, limites et pistes</a></li>
+    <li><a href="#sources"><b>9</b> Sources</a></li>
+  </ol>
+
+  <!-- 1 -->
+  <section class="etape" id="e1">
+    <h2><span class="num">1</span> Nombre d'inscrits par case <span class="fiab f1">Solide</span></h2>
+    <p class="resume">Les effectifs par âge et par niveau de diplôme sont tirés du recensement de 2022, vieilli de quatre ans pour correspondre à 2026 : chaque génération avance de quatre ans et l'on retire les décès. Ces effectifs sont ensuite ajustés pour retrouver exactement le nombre officiel d'inscrits sur les listes électorales dans chaque tranche d'âge. C'est l'étape la plus fiable, car elle repose sur des dénombrements et non sur des sondages.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Données</h3>
+    <ul>
+      <li>Recensement de 2022, fichier détail des individus (INSEE) : 17,5 millions de fiches indiquant l'âge, le diplôme, la nationalité et le poids de sondage.</li>
+      <li>Répertoire électoral unique au 11 février 2026 (Insee Focus n° 378) : nombre d'inscrits sur la liste principale par tranche d'âge (18-24, 25-39, 40-54, 55-64, 65-79, 80 ans et plus). L'âge y est l'âge révolu au 1<sup>er</sup> janvier 2026, comme sur la pyramide, soit 2025 moins l'année de naissance. Les générations de la page Carte suivent la même règle ; les baby-boomers, nés entre 1946 et 1964, y ont ainsi de 61 à 79 ans.</li>
+    </ul>
+    <h3>Méthode</h3>
+    <p>a. Population de nationalité française. On retient les Français de naissance ou par acquisition, pondérés par leur poids de sondage. Les douze codes de diplôme de l'INSEE sont regroupés en six niveaux ; l'absence de diplôme, le certificat d'études primaires et le brevet sont regroupés sous « sans diplôme ».</p>
+    <p>b. Vieillissement de quatre ans, de 2022 à 2026. Chaque génération avance de quatre ans et perd ses décès. Les hommes et les femmes sont vieillis séparément, à l'aide des quotients de mortalité par sexe et par âge publiés par l'INSEE pour 2022, 2023 et 2024 (Bilan démographique 2024). Ceux de 2025 n'étant pas encore publiés, on reprend ceux de 2024 :</p>
+    <p class="formule">Survie sur 4 ans : <var>S</var><sub><var>s</var></sub>(<var>x</var>) = Π<sub><var>k</var>=1…4</sub> (1 − <var>q</var><sub><var>s</var>, 2021+<var>k</var></sub>(<var>x</var> + <var>k</var>)) &nbsp;(<var>s</var> : sexe, <var>x</var> : âge en 2022, <var>q</var> : quotient à l'âge atteint dans l'année)<br>
+      Effectif<sub>2026</sub>(<var>a</var>, <var>d</var>) = Σ<sub><var>s</var></sub> Effectif<sub>2022</sub>(<var>a</var> − 4, <var>s</var>, <var>d</var>) × <var>S</var><sub><var>s</var></sub>(<var>a</var> − 4)</p>
+    <figure class="graphe" id="g-survie"><figcaption><b>Probabilité d'être encore en vie quatre ans plus tard</b><span>selon l'âge atteint en 2026</span></figcaption><div class="g-corps"></div><p class=g-note>La mortalité est négligeable avant 60 ans, mais elle devient importante aux grands âges, davantage chez les hommes : parmi les personnes âgées de 96 ans en 2022, 18&nbsp;% des hommes et 26&nbsp;% des femmes sont encore en vie en 2026. Les femmes de ces générations étant moins diplômées, le vieillissement augmente légèrement la part des personnes sans diplôme après 80 ans.</p></figure>
+    <p>c. Niveau de diplôme à chaque âge en 2026.</p>
+    <ul>
+      <li>À partir de 30 ans, on reprend la répartition par diplôme de la même génération en 2022, les études étant achevées.</li>
+      <li>Avant 30 ans, on reprend la répartition observée au même âge en 2022, puisque les études se poursuivent.</li>
+    </ul>
+    <figure class="graphe" id="g-compo"><figcaption><b>Part de chaque niveau de diplôme parmi les inscrits, selon l'âge</b><span>de l'absence de diplôme (en bas) au bac+5 (en haut)</span></figcaption><div class="g-corps"></div><p class=g-note>La part des diplômés du supérieur augmente de génération en génération. Le creux observé avant 25 ans s'explique par les études en cours, seul le diplôme déjà obtenu étant pris en compte.</p></figure>
+    <p>d. Calage sur les inscrits. Toutes les personnes de nationalité française ne sont pas inscrites. Les effectifs sont donc multipliés par un coefficient <var>c</var>(<var>a</var>) qui varie continûment avec l'âge, par interpolation entre les milieux des tranches du répertoire. Ce coefficient est ajusté par itérations jusqu'à ce que chaque tranche retrouve exactement son nombre d'inscrits :</p>
+    <p class="formule"><var>N</var>(<var>a</var>, <var>d</var>) = <var>c</var>(<var>a</var>) × Français<sub>2026</sub>(<var>a</var>) × part<sub>diplôme</sub>(<var>d</var> | <var>a</var>), &nbsp; avec Σ<sub><var>a</var> ∈ tranche</sub> Σ<sub><var>d</var></sub> <var>N</var> = inscrits<sub>REU</sub>(tranche)</p>
+    <p>e. Lissage pour le dessin. Les effectifs sont lissés d'un âge à l'autre par un noyau gaussien (σ = 1,6 an), en conservant le total de chaque niveau de diplôme. Ce lissage atténue les irrégularités du recensement sans effacer le baby-boom ni le déficit des naissances de la guerre. Avant 26 ans, le lissage est beaucoup plus faible : σ vaut 0,4 an à 18 ans et croît linéairement jusqu'à 1,6 an à 26 ans. À ces âges, la composition par diplôme change rapidement d'une année à l'autre (baccalauréat vers 18 ans, licence vers 21 ans, master vers 23 ans) ; un lissage plus large attribuait aux bac+3/4 de 18 ans six fois leur effectif réel, soit 30 000 personnes au lieu de 5 000. Ce lissage ne concerne que la forme du dessin : les voix, la participation et les chiffres des sélections sont calculés sur les effectifs bruts.</p>
+    <h3>Résultat</h3>
+    <p>On obtient 47 814 770 inscrits, pour 47 814 756 dans le répertoire ; l'écart de 14 tient à l'arrondi de chaque case. La répartition par diplôme est la suivante : sans diplôme 19,8&nbsp;%, CAP-BEP 22,7&nbsp;%, baccalauréat 21,0&nbsp;%, bac+2 12,2&nbsp;%, bac+3/4 11,0&nbsp;%, bac+5 et plus 13,2&nbsp;%.</p>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>Le diplôme retenu est le diplôme obtenu à la date de l'enquête, y compris pour les étudiants, conformément à la définition des sondages. Un étudiant de 20 ans inscrit en master est donc compté comme bachelier, ce qui élargit la partie gauche du bas de la pyramide.</li>
+      <li>Le taux d'inscription est supposé identique quel que soit le diplôme, car il n'est connu que par âge. La non-inscription et la mal-inscription touchant davantage les moins diplômés, la partie gauche de la pyramide est probablement un peu surestimée.</li>
+      <li>La mortalité est supposée identique pour tous les niveaux de diplôme, à sexe égal. Les diplômés vivant plus longtemps, l'effet existe aux grands âges, mais il reste faible sur quatre ans.</li>
+      <li>Les 1,7 million de Français établis à l'étranger, absents du recensement, ne sont pas pris en compte.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Utiliser un taux d'inscription par diplôme, si une source le mesure (enquêtes de l'INSEE sur la participation et l'inscription). Son application par âge et par diplôme corrigerait le principal biais de cette étape.</li>
+        <li>Différencier la mortalité selon le diplôme (tables d'espérance de vie par diplôme de l'INSEE). Le gain serait faible et ne concernerait que les grands âges.</li>
+        <li>Reprendre le recensement de 2023 dès sa publication, ce qui réduirait le vieillissement à trois ans.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 2 -->
+  <section class="etape" id="e2">
+    <h2><span class="num">2</span> Participation <span class="fiab f3">Fragile</span></h2>
+    <p class="resume">On estime, dans chaque case, la proportion d'inscrits qui iront voter. Le point de départ est la participation effective au premier tour de 2022, mesurée par l'INSEE sur les listes d'émargement : les plus jeunes et les plus âgés votent moins, et, à âge égal, les moins diplômés votent nettement moins, en particulier aux deux extrémités de la pyramide. Les étudiants votent relativement bien, quel que soit leur diplôme. Le niveau d'ensemble est ensuite ajusté sur la participation retenue par le sondage. Cette étape demeure la plus fragile, la participation de 2027 pouvant s'écarter de celle de 2022 ; c'est pourquoi la page Carte permet de la faire varier.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Données</h3>
+    <ul>
+      <li>INSEE, enquête sur la participation électorale de 2022, établie à partir des listes d'émargement (34 000 inscrits) :
+        <ul>
+          <li>Insee Première n° 1928, figure 3 : part des inscrits ayant voté à au moins un tour de l'élection présidentielle, par tranche d'âge de cinq ans ;</li>
+          <li>Insee Première n° 1929, figure 5 : participation au premier tour, sur trois tranches d'âge seulement (18-29 ans : 67,2&nbsp;% ; 30-64 ans : 81,7&nbsp;% ; 65 ans et plus : 77,0&nbsp;%) ;</li>
+          <li>Insee Première n° 1929, tableaux complémentaires 3 et 5 : abstention à tous les tours des personnes sans diplôme et des diplômés du supérieur dans chacune de ces tranches, ainsi que, pour les 18-29 ans, selon les quatre niveaux de diplôme, en distinguant étudiants et non-étudiants ;</li>
+          <li>Insee Première n° 1928, tableau complémentaire 2 : rapports de chances d'abstention des six niveaux de diplôme, toutes choses égales par ailleurs.</li>
+        </ul>
+      </li>
+      <li>Recensement de 2022 : part d'étudiants dans chaque case âge × diplôme.</li>
+      <li>Sondage affiché : part des inscrits sur laquelle portent ses résultats, souvent celle des personnes « tout à fait certaines » d'aller voter.</li>
+    </ul>
+    <h3>Méthode</h3>
+    <p>La probabilité de voter est modélisée sur l'échelle logit (logit <var>p</var> = ln(<var>p</var> / (1 − <var>p</var>))), en quatre temps.</p>
+    <p>a. Profil par âge au premier tour. La forme détaillée provient de la participation à au moins un tour par tranche de cinq ans, <var>L</var><sub>1+</sub>(<var>a</var>). Elle est décalée de manière à retrouver la participation au premier tour de chaque grande tranche ; le décalage δ est interpolé entre les âges moyens de ces tranches (23, 47 et 76 ans) :</p>
+    <p class="formule"><var>T</var>(<var>a</var>) = σ(<var>L</var><sub>1+</sub>(<var>a</var>) + δ(<var>a</var>)), &nbsp; avec la moyenne de <var>T</var> sur chaque tranche = taux INSEE du 1<sup>er</sup> tour</p>
+    <p>Le passage au seul premier tour affecte surtout les jeunes, qui votent fréquemment à un tour sur deux.</p>
+    <p>b. Écart selon le diplôme, à âge égal. Les rapports de chances de l'INSEE (1,70 pour les personnes sans diplôme, puis 1,24, 1, 0,87, 0,69 et 0,59 pour les bac+5) donnent la forme de l'écart entre niveaux de diplôme. Ils neutralisent toutefois la profession, le revenu et le lieu de résidence, et ne mesurent donc que l'effet propre du diplôme. Le modèle ne comportant que l'âge et le diplôme, ce dernier doit porter l'ensemble de l'écart. La forme est donc étirée d'un facteur <var>g</var>, de manière à retrouver, dans chaque tranche, l'écart brut d'abstention entre personnes sans diplôme et diplômés du supérieur :</p>
+    <p class="formule">logit abst<sub>non-étudiants</sub>(<var>a</var>, <var>d</var>) = <var>B</var>(<var>a</var>) + <var>g</var>(<var>a</var>) × ln OR<sub><var>d</var></sub>, &nbsp; <var>g</var> = 1,62 (18-29 ans) · 1,24 (30-64 ans) · 1,68 (65 ans et plus)</p>
+    <p>Cet écart est mesuré sur l'abstention à tous les tours ; on suppose qu'il s'applique à l'abstention au premier tour. L'hypothèse peut être vérifiée pour l'âge : les écarts entre tranches sont identiques, à 4&nbsp;% près, selon les deux mesures.</p>
+    <p>c. Étudiants. Les étudiants déjà diplômés s'abstiennent peu (16 à 18&nbsp;% d'abstention à tous les tours, 30&nbsp;% pour les rares étudiants sans diplôme, contre 27 à 50&nbsp;% pour les jeunes non-étudiants qui n'ont pas fait d'études supérieures). Or un étudiant en master est compté ici comme bachelier. Dans chaque case, l'abstention combine donc celle des étudiants et celle des non-étudiants, selon la part d'étudiants mesurée par le recensement (88&nbsp;% des bacheliers de 18 ans, 36&nbsp;% à 22 ans, 2&nbsp;% à 30 ans) :</p>
+    <p class="formule">abst(<var>a</var>, <var>d</var>) = <var>e</var>(<var>a</var>, <var>d</var>) × abst<sub>étudiants</sub>(<var>d</var>) + (1 − <var>e</var>(<var>a</var>, <var>d</var>)) × abst<sub>non-étudiants</sub>(<var>a</var>, <var>d</var>)</p>
+    <p>d. Calage. À chaque âge, un décalage commun à tous les niveaux de diplôme permet de retrouver exactement le profil <var>T</var>(<var>a</var>). Une constante <var>c</var>, obtenue par dichotomie, cale ensuite la participation d'ensemble sur la valeur cible : 74,9&nbsp;% pour les profils du Cevipof, puis la participation du sondage affiché à l'étape 5.</p>
+    <p>Ces 74,9&nbsp;% correspondent à la participation effective au premier tour de 2022 des inscrits en France. Le chiffre officiel, 73,7&nbsp;%, inclut aussi les 1,4 million de Français de l'étranger, dont seuls 35&nbsp;% ont voté ; ils sont exclus du champ, comme dans l'enquête de l'INSEE. Les collectivités d'outre-mer (Nouvelle-Calédonie, Polynésie française, etc.), également hors du champ mais beaucoup moins nombreuses, sont conservées ; sans elles, le taux serait supérieur d'environ 0,3&nbsp;point.</p>
+    <p>L'abstention de la case s'écrit alors <var>s</var><sub>abst</sub>(<var>a</var>, <var>d</var>) = 1 − <var>p</var>(<var>a</var>, <var>d</var>).</p>
+    <figure class="graphe" id="g-partic"><figcaption><b>Probabilité de voter selon l'âge, par niveau de diplôme</b><span>modèle calé sur 74,9 % de participation</span></figcaption><div class="g-corps"></div><p class=g-note>Les points représentent les taux de l'INSEE pour la participation à au moins un tour en 2022, tous diplômes confondus ; ils se situent donc au-dessus des courbes, calées sur le seul premier tour. Entre 18 et 20 ans, les courbes se resserrent, car la plupart des bacheliers et des jeunes sans diplôme, encore lycéens, sont en cours d'études.</p></figure>
+    <h3>Validation</h3>
+    <p>Le modèle a été comparé au sondage Ipsos réalisé le jour du premier tour de 2022, qui publie l'abstention déclarée par âge et par diplôme.</p>
+    <figure class="graphe" id="g-abst"><figcaption><b>Abstention par âge selon le modèle et selon le sondage</b><span>1<sup>er</sup> tour 2022</span></figcaption><div class="g-corps"></div></figure>
+    <table class="petit-tab" id="t-abst-age"></table>
+    <table class="petit-tab" id="t-abst-dip"></table>
+    <p>Par âge, le recours à la participation au seul premier tour rapproche le modèle des estimations d'Ipsos : l'écart moyen passe de <span id="abst-ecart-ancien">6,7</span> à <span id="abst-ecart">5,1</span>&nbsp;points, et de <span id="abst-ecart-2534-ancien">14</span> à <span id="abst-ecart-2534">11</span>&nbsp;points chez les 25-34 ans, les deux versions étant calées sur 74,9&nbsp;%. L'écart résiduel s'explique en partie par le champ de l'enquête de l'INSEE, limité aux inscrits résidant effectivement en France (77,9&nbsp;% de participation au premier tour, contre 74,9&nbsp;% pour l'ensemble des inscrits en France) ; or les personnes mal inscrites, qui ont déménagé sans changer de bureau de vote, sont surtout de jeunes adultes.</p>
+    <p>Par diplôme, le modèle s'écarte d'Ipsos, dont les estimations indiquent une abstention presque identique d'un niveau à l'autre. Ce choix est délibéré : l'INSEE mesure le vote effectif de 34 000 inscrits et observe un écart de 1 à 3 entre personnes sans diplôme et diplômés du supérieur, à tout âge, tandis qu'Ipsos recueille des déclarations, et les moins diplômés qui s'abstiennent répondent moins aux sondages.</p>
+    <p>Un autre élément va dans le sens du modèle : avec les nouveaux effectifs de votants par âge, les tableaux des instituts retrouvent un peu mieux leur total (voir l'étape 4).</p>
+    <p>Stabilité d'une élection à l'autre. La question décisive pour 2027 est de savoir si le profil de participation d'une élection permet de prévoir celui de la suivante. Pour chaque élection présidentielle depuis 2002, on a conservé la participation par âge au premier tour, recalé seulement le niveau d'ensemble sur l'élection suivante, puis comparé le résultat à la participation observée (INSEE, Insee Première n° 1929, figure 5) :</p>
+    <table class="petit-tab">
+      <thead><tr><th>Prévu − observé</th><th>18-29 ans</th><th>30-64 ans</th><th>65 ans et +</th></tr></thead>
+      <tbody><tr><td>2002 → 2007</td><td>−0,7 pt</td><td>−1,1 pt</td><td>+3,9 pts</td></tr>
+      <tr><td>2007 → 2012</td><td>+3,6 pts</td><td>−0,7 pt</td><td>−0,9 pt</td></tr>
+      <tr><td>2012 → 2017</td><td>+1,2 pt</td><td>−0,1 pt</td><td>−0,8 pt</td></tr>
+      <tr><td>2017 → 2022</td><td>−0,2 pt</td><td>+1,3 pt</td><td>−2,4 pts</td></tr></tbody>
+    </table>
+    <p>L'erreur est généralement comprise entre 1 et 2&nbsp;points et n'excède pas 4&nbsp;points. S'agissant du diplôme, l'écart d'abstention à tous les tours entre personnes sans diplôme et diplômés du supérieur s'est creusé de 2002 à 2012, puis est resté stable : le rapport de chances valait 3,2 en 2002, 4,4 en 2012, 3,9 en 2017 et 4,2 en 2022 (figure 6). Le profil de 2022 constitue donc une base raisonnable pour 2027, à quelques points près.</p>
+    <p>Application à l'élection de 2017. Le même test a été conduit avec le sondage Ipsos du premier tour de 2017 : le profil de 2022 est conservé tel quel et seul le niveau est recalé sur la participation de 2017 (78,7&nbsp;% des inscrits en France), comme on le fait pour 2027. Abstention en %, modèle / Ipsos :</p>
+    <table class="petit-tab">
+      <thead><tr><th></th><th>18-24</th><th>25-34</th><th>35-49</th><th>50-59</th><th>60-69</th><th>70 et +</th><th>Écart moyen</th></tr></thead>
+      <tbody><tr><td>2022</td><td>36 / 42</td><td>35 / 46</td><td>22 / 23</td><td>16 / 20</td><td>16 / 12</td><td>29 / 24</td><td>5,1 pts</td></tr>
+      <tr><td>2017</td><td>31 / 29</td><td>30 / 28</td><td>18 / 26</td><td>13 / 24</td><td>13 / 16</td><td>25 / 12</td><td>6,5 pts</td></tr></tbody>
+    </table>
+    <table class="petit-tab">
+      <thead><tr><th></th><th>Sans bac</th><th>Bac</th><th>Bac+2</th><th>Bac+3 et +</th><th>Écart moyen</th></tr></thead>
+      <tbody><tr><td>2022</td><td>32 / 24</td><td>26 / 28</td><td>20 / 26</td><td>16 / 27</td><td>6,8 pts</td></tr>
+      <tr><td>2017</td><td>27 / 25</td><td>22 / 24</td><td>17 / 20</td><td>13 / 19</td><td>3,5 pts</td></tr></tbody>
+    </table>
+    <p>Par diplôme, le modèle est bien plus proche d'Ipsos en 2017 qu'en 2022 : en 2017, Ipsos observait lui aussi une abstention décroissante avec le diplôme. C'est son tableau de 2022, presque uniforme, qui fait exception, alors que l'INSEE mesure un écart stable d'une élection à l'autre. Par âge, l'écart augmente surtout chez les 70 ans et plus : Ipsos y estime l'abstention à 12&nbsp;% en 2017 et à 24&nbsp;% en 2022, quand l'INSEE mesure 22 à 23&nbsp;% chez les 65 ans et plus lors des deux élections. Les sondages atteignent mal les personnes les plus âgées, en particulier celles qui vivent en établissement. Reprendre les données de l'INSEE propres à 2017 (premier tour par tranche d'âge, écart par diplôme) ne modifie le modèle que de 2,5&nbsp;points au plus par groupe, sans le rapprocher d'Ipsos. Le sondage ne permet donc pas de trancher finement, puisqu'il s'écarte de l'INSEE autant que le modèle. Ce test utilise, par approximation, la pyramide des inscrits de 2026.</p>
+    <h3>Variation de la participation</h3>
+    <p>Sur la page Carte, le bloc « Participation » permet d'explorer cette incertitude au moyen de cinq curseurs, exprimés en points de participation du groupe concerné, par pas de 0,5 : l'ensemble des inscrits (±10), les 18-29 ans, les 65 ans et plus, les personnes sans diplôme ou titulaires d'un CAP-BEP, et les diplômés du supérieur à partir du bac+2 (±5 chacun, soit un peu plus que les écarts historiques). Chaque curseur décale la participation de son groupe sur l'échelle logit :</p>
+    <p class="formule">logit <var>p</var>′(<var>a</var>, <var>d</var>) = logit <var>p</var>(<var>a</var>, <var>d</var>) + <var>x</var><sub>tous</sub> + <var>x</var><sub>jeunes</sub> 1[<var>a</var> ≤ 29] + <var>x</var><sub>âgés</sub> 1[<var>a</var> ≥ 65] + <var>x</var><sub>peu dipl.</sub> 1[<var>d</var> ≤ CAP-BEP] + <var>x</var><sub>sup.</sub> 1[<var>d</var> ≥ bac+2]</p>
+    <p>Chaque décalage <var>x</var> est déterminé par dichotomie, curseur seul, de sorte que le groupe gagne ou perde exactement le nombre de points demandé lorsqu'il est le seul modifié. Lorsque plusieurs curseurs sont déplacés, leurs décalages s'additionnent : relever un curseur augmente donc toujours la participation, et un groupe qui en recoupe un autre, comme les personnes peu diplômées, souvent âgées, varie un peu plus ou un peu moins que son curseur, ainsi que l'indique la valeur affichée sous chacun. Le curseur portant sur l'ensemble des inscrits s'applique en dernier, à la participation globale. Dans chaque case, les votants conservent la même répartition entre candidats (<var>s<sub>k</sub></var>′ = <var>s<sub>k</sub></var> × <var>p</var>′ / <var>p</var>) ; seul leur nombre varie, et avec lui les scores nationaux. À titre d'ordre de grandeur, sur l'hypothèse « Attal seul au centre » de Cluster17, une hausse de 5&nbsp;points de la participation des 18-29 ans fait gagner 0,3&nbsp;point à Jean-Luc Mélenchon et perdre 0,1&nbsp;point à Marine Le Pen ; une baisse de 5&nbsp;points chez les personnes peu diplômées fait perdre 0,3&nbsp;point à Marine Le Pen.</p>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>L'écart entre niveaux de diplôme n'est connu que pour trois tranches d'âge, et seulement entre les deux extrêmes (sans diplôme et supérieur). Les niveaux intermédiaires suivent la forme des rapports de chances de l'INSEE. Chez les 85 ans et plus, on obtient ainsi 63&nbsp;% d'abstention chez les personnes sans diplôme contre 22&nbsp;% chez les bac+5, pour une participation de 74,9&nbsp;% ; cet écart important est cohérent avec celui que l'INSEE mesure chez les 65 ans et plus (33&nbsp;% contre 8,5&nbsp;% d'abstention à tous les tours).</li>
+      <li>D'autres sources ont été examinées. Les enquêtes électorales de Sciences Po (réponses individuelles, vote déclaré) ont permis de tester d'autres manières d'estimer l'abstention par âge et par diplôme, ainsi que l'effet du diplôme sur le vote. Elles n'améliorent pas l'estimation par âge ; pour le diplôme, le gain est faible et repose sur des déclarations. Le modèle de l'INSEE, fondé sur le vote effectif, a donc été conservé.</li>
+      <li>L'écart d'abstention mesuré sur l'ensemble des tours est appliqué au premier tour. Cette hypothèse est vérifiée pour l'âge et supposée pour le diplôme.</li>
+      <li>Le profil de 2022 est appliqué à 2027. Une mobilisation particulière en 2027, par exemple chez les jeunes, ne serait pas prise en compte, seul le niveau d'ensemble provenant du sondage.</li>
+      <li>La participation retenue par le sondage est appliquée telle quelle. Les instituts n'en retiennent pas tous la même définition (« tout à fait certain », « 8 à 10 sur 10 », etc.), et, à cinq mois du scrutin, elle est partout inférieure à la participation finale probable.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Intégrer les informations propres à 2027, en corrigeant le profil de 2022 par les écarts de certitude d'aller voter que les sondages mesurent par âge et par diplôme (le Cevipof les publie, sur 13 000 personnes).</li>
+        <li>Obtenir la participation au premier tour croisée par âge détaillé et par diplôme, qui figure dans l'enquête de l'INSEE et est accessible aux chercheurs par le CASD.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 3 -->
+  <section class="etape" id="e3">
+    <h2><span class="num">3</span> Profils de vote de référence <span class="fiab f2">Assez solide</span></h2>
+    <p class="resume">Aucun sondage ne publie le vote croisé par âge et par diplôme. Ce croisement est reconstitué à partir de l'Enquête électorale française du Cevipof (13 000 personnes), qui publie le vote par âge et par catégorie professionnelle. Le recensement indique la composition professionnelle de chaque groupe d'âge et de diplôme, ce qui permet d'en déduire un vote probable. On ajoute ensuite l'effet propre du diplôme, mesuré lors de l'élection de 2022. La méthode a été éprouvée sur 2022, pour laquelle le résultat est connu.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Données</h3>
+    <ul>
+      <li>Enquête électorale française, Cevipof / Ipsos, vague 3 (septembre 2026, 13 060 inscrits) : vote au premier tour pour six hypothèses de candidatures, par âge (six tranches) et par catégorie professionnelle (sept catégories, dont les retraités anciens cadres d'une part, anciens ouvriers et employés d'autre part).</li>
+      <li>Recensement de 2022 : composition professionnelle de chaque case âge × diplôme.</li>
+      <li>Ipsos, premier tour de 2022 (4 000 inscrits) : vote par âge, par profession et par diplôme. C'est le seul sondage qui publie ces trois tableaux ; il sert à mesurer l'effet propre du diplôme.</li>
+    </ul>
+    <h3>Méthode</h3>
+    <p>a. Composition professionnelle. Pour chaque case, la part de chaque catégorie, P(pcs | <var>a</var>, <var>d</var>), est calculée à partir du recensement au même âge. Une huitième catégorie, « autres », regroupe les étudiants, les personnes au foyer et celles qui n'ont jamais travaillé. Les votants d'une sous-case s'écrivent :</p>
+    <p class="formule"><var>W</var>(<var>a</var>, <var>d</var>, pcs) = <var>N</var>(<var>a</var>, <var>d</var>) × <var>p</var>(<var>a</var>, <var>d</var>) × P(pcs | <var>a</var>, <var>d</var>)</p>
+    <p>b. Modèle multiplicatif. Parmi les votants d'une sous-case, la part du candidat <var>k</var> s'écrit :</p>
+    <p class="formule"><var>V<sub>k</sub></var>(<var>a</var>, <var>d</var>, pcs) = exp(<var>A<sub>k</sub></var>(<var>a</var>) + <var>C<sub>k</sub></var>(<var>d</var>) + <var>B<sub>k</sub></var>(pcs)) / Σ<sub><var>j</var></sub> exp(<var>A<sub>j</sub></var>(<var>a</var>) + <var>C<sub>j</sub></var>(<var>d</var>) + <var>B<sub>j</sub></var>(pcs))</p>
+    <ul>
+      <li><var>A<sub>k</sub></var>(<var>a</var>) représente l'effet de l'âge. Il est défini aux six milieux de tranche et interpolé linéairement entre eux, afin d'éviter toute discontinuité à 25 ou 35 ans.</li>
+      <li><var>B<sub>k</sub></var>(pcs) représente l'effet de la profession, nul pour la catégorie « autres ».</li>
+      <li><var>C<sub>k</sub></var>(<var>d</var>) représente l'effet propre du diplôme, fixé au préalable (point c).</li>
+    </ul>
+    <p>Les paramètres <var>A</var> et <var>B</var> sont estimés par calage itératif (méthode IPF, avec un pas de 0,7). À chaque itération, ln <var>A</var> est corrigé de ln(cible / prédit) sur le tableau par âge, et ln <var>B</var> de même sur le tableau par profession. Le calcul s'arrête lorsque l'écart maximal devient inférieur à 0,02&nbsp;point. Pour l'hypothèse « O. Faure, G. Attal », l'écart ne descend pas sous 0,07&nbsp;point, ses tableaux, arrondis à l'unité, n'étant pas tout à fait compatibles entre eux.</p>
+    <p>c. Effet propre du diplôme. Il s'agit de l'effet du diplôme à âge et profession égaux. Le même modèle est ajusté sur les trois tableaux d'Ipsos 2022, ce qui fournit <var>C</var>(<var>d</var>) pour chaque candidat de 2022. Le tableau suivant en donne quelques valeurs, sous forme de multiplicateurs (baccalauréat = 1) :</p>
+    <table class="petit-tab">
+      <thead><tr><th>2022</th><th>&lt; bac</th><th>Bac</th><th>Bac+2</th><th>Bac+3 et +</th></tr></thead>
+      <tbody><tr><td>Le Pen</td><td>1,59</td><td>1</td><td>0,89</td><td>0,50</td></tr>
+      <tr><td>Macron</td><td>0,66</td><td>1</td><td>1,18</td><td>1,07</td></tr>
+      <tr><td>Mélenchon</td><td>0,86</td><td>1</td><td>0,78</td><td>1,15</td></tr></tbody>
+    </table>
+    <p>Cet effet est transposé au candidat de 2027 le plus proche : Marine Le Pen reprend celui de Marine Le Pen, Édouard Philippe et Gabriel Attal celui d'Emmanuel Macron, Raphaël Glucksmann ceux de Yannick Jadot et d'Anne Hidalgo, Bruno Retailleau celui de Valérie Pécresse, etc. Il est atténué lorsque l'électorat de référence de 2022 était peu nombreux dans l'échantillon :</p>
+    <p class="formule"><var>C</var><sub>2027</sub> = <var>C</var><sub>2022</sub> × <var>n</var> / (<var>n</var> + 25), &nbsp; <var>n</var> = électeurs du candidat par groupe de diplôme dans Ipsos 2022</p>
+    <p>d. Agrégation par case. Les parts sont moyennées sur les professions de chaque case, pondérées par leurs votants, puis multipliées par la participation :</p>
+    <p class="formule"><var>s<sub>k</sub></var>(<var>a</var>, <var>d</var>) = <var>p</var>(<var>a</var>, <var>d</var>) × Σ<sub>pcs</sub> <var>W</var> <var>V<sub>k</sub></var> / Σ<sub>pcs</sub> <var>W</var></p>
+    <h3>Validation sur l'élection de 2022</h3>
+    <p>La méthode a été appliquée au sondage Ipsos de 2022 sans recourir à son tableau par diplôme, puis le résultat a été comparé à ce tableau.</p>
+    <div class="g-leg g-leg-commune"><span><i style="--c:var(--fg)"></i>Publié par Ipsos</span><span><i style="--c:var(--accent)"></i>Reconstitué à partir de l'âge et de la profession</span><span><i class="tir" style="--c:var(--muted)"></i>Reconstitué à partir de l'âge seul</span></div>
+    <div class="g-trio"><figure class="graphe" id="g-bt-lepen"><figcaption><b>Le Pen</b></figcaption><div class="g-corps"></div></figure><figure class="graphe" id="g-bt-macron"><figcaption><b>Macron</b></figcaption><div class="g-corps"></div></figure><figure class="graphe" id="g-bt-melenchon"><figcaption><b>Mélenchon</b></figcaption><div class="g-corps"></div></figure></div>
+    <p class="g-note">Vote au premier tour de 2022 selon le diplôme. L'écart entre la courbe noire et la courbe rose correspond à ce que la profession n'explique pas, c'est-à-dire à l'effet propre du diplôme, particulièrement marqué pour Marine Le Pen.</p>
+    <ul>
+      <li>À partir de l'âge et de la profession seulement, la méthode retrouve 23&nbsp;% de l'écart observé pour Marine Le Pen entre non-bacheliers et diplômés de bac+3 et plus (+5&nbsp;points, contre +22 publiés), 13&nbsp;% de celui d'Emmanuel Macron et 56&nbsp;% de celui de Jean-Luc Mélenchon. La profession ne suffit donc pas à rendre compte du diplôme, dont l'effet propre est très marqué pour Marine Le Pen.</li>
+      <li>D'où l'ajout de l'effet propre <var>C</var>, mesuré en 2022. L'erreur moyenne sur le tableau par diplôme passe de 2,0&nbsp;points avec l'âge seul à 1,6&nbsp;point avec l'âge et la profession ; l'effet propre corrige le reste par construction, pour 2022.</li>
+    </ul>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>Le modèle est multiplicatif et ne comporte pas d'interaction : l'effet de l'âge est supposé identique à tous les niveaux de diplôme. Un jeune diplômé de bac+5 et un retraité de même diplôme ne diffèrent que par l'effet de l'âge. C'est cette hypothèse qui produit le croisement ; elle ne peut pas être vérifiée à partir des seules données publiées.</li>
+      <li>L'effet du diplôme mesuré en 2022 est supposé stable jusqu'en 2027 et transposé à des candidats différents, Édouard Philippe n'étant pas Emmanuel Macron.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>La principale serait d'exploiter les données individuelles de l'Enquête électorale française (Cevipof, accessibles aux chercheurs par data.sciencespo). Elles permettent d'observer le croisement âge × diplôme × vote sur 13 000 personnes, ce qui remplacerait la modélisation de cette étape par une mesure et permettrait de tester l'interaction entre âge et diplôme.</li>
+        <li>À défaut, des tris croisés par âge et par diplôme pourraient être demandés à un institut : ils peuvent être calculés à partir de ses fichiers, même s'ils ne sont pas publiés.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 4 -->
+  <section class="etape" id="e4">
+    <h2><span class="num">4</span> Profils moyens des instituts <span class="fiab f1">Âge : solide</span> <span class="fiab f2">Diplôme : assez solide</span></h2>
+    <p class="resume">Pour ne pas dépendre d'une seule enquête, on calcule le profil moyen de chaque candidat par âge et par diplôme à partir de plusieurs instituts (sept sondages), en accordant plus de poids aux sondages les plus importants et les plus récents. Pour l'âge, les sources sont nombreuses et concordantes ; pour le diplôme, un seul institut publie ces résultats, ce qui rend l'estimation moins sûre.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Justification</h3>
+    <p>L'enquête du Cevipof date de septembre et ne comprend pas tous les candidats (David Lisnard et Agnès Lagarde en sont absents). D'autres instituts publient le vote par âge, et Cluster17 publie également le vote par diplôme. Leur moyenne évite de dépendre d'une seule enquête.</p>
+    <h3>Méthode</h3>
+    <p>Pour chaque candidat, on calcule un indice par groupe (tranche d'âge ou niveau de diplôme) : son score moyen dans le groupe divisé par son score moyen d'ensemble, les deux moyennes étant pondérées sur l'ensemble des sondages et des hypothèses où il figure :</p>
+    <p class="formule"><var>Ī<sub>k</sub></var>(<var>g</var>) = Σ <var>w</var> × score<sub><var>k</var></sub>(<var>g</var>) / Σ <var>w</var> × score<sub><var>k</var></sub>, &nbsp; <var>w</var> = min(<var>n</var>, 1 500) / nb d'hypothèses × exp(−½ (ancienneté / 45 j)²)</p>
+    <p>Ce sont les scores eux-mêmes qui sont moyennés, et non leurs rapports. Une moyenne géométrique des rapports, utilisée au début du projet, faisait chuter le profil d'un petit candidat dès qu'un sous-groupe ne comptait presque aucun de ses électeurs. Ainsi, Bruno Retailleau obtenait 0&nbsp;% chez les bacheliers dans un sondage de Cluster17, alors qu'une dizaine d'électeurs y étaient attendus, et son indice chez les bacheliers tombait à 0,61 ; il est désormais de 0,82.</p>
+    <ul>
+      <li><var>n</var> désigne le nombre estimé de suffrages exprimés du sondage. Il est plafonné afin qu'un échantillon très important (Odoxa, 12 000 personnes) ne domine pas les autres.</li>
+      <li>La pondération par l'ancienneté réduit de 40&nbsp;% le poids d'un sondage réalisé 45 jours avant le plus récent.</li>
+      <li>Les tranches propres à chaque institut sont ramenées à cinq tranches communes (18-24, 25-34, 35-49, 50-64, 65 ans et plus). Les tranches 65-74 et 75 ans et plus sont regroupées, et la tranche 18-34 compte pour 18-24 et pour 25-34, avec un demi-poids dans chacune.</li>
+    </ul>
+    <p>Âge : sept sondages de cinq instituts. Leurs poids respectifs sont les suivants : Cluster17 (octobre) 24&nbsp;%, Elabe (novembre) 18&nbsp;%, Odoxa 18&nbsp;%, OpinionWay 12&nbsp;%, Cluster17 (novembre) 12&nbsp;%, Cevipof 9&nbsp;% (plus 2&nbsp;% au titre du profil d'appui de David Lisnard et d'Agnès Lagarde, voir plus bas), Elabe (août) 4&nbsp;%. Ces sondages concordent : l'indice de Jean-Luc Mélenchon atteint 2,4 chez les 18-24 ans, et celui de Marine Le Pen culmine à 1,19 chez les 50-64 ans.</p>
+    <figure class="graphe" id="g-ind-age"><figcaption><b>Indice par âge : score dans la tranche rapporté au score d'ensemble</b><span>moyenne pondérée des instituts, cinq principaux candidats</span></figcaption><div class="g-corps"></div><p class=g-note>Un indice supérieur à 1 signifie que le candidat obtient dans la tranche un score supérieur à sa moyenne.</p></figure>
+    <p>Diplôme : cinq groupes (moins que le baccalauréat, baccalauréat, bac+2, bac+3/4, bac+5). Seul Cluster17 publie des résultats par diplôme (deux vagues, représentant 56&nbsp;% du poids). Le modèle de l'étape 3 compte comme un sondage de 1 500 suffrages exprimés (44&nbsp;%, dont 6&nbsp;% au titre du profil d'appui de David Lisnard et d'Agnès Lagarde) et sert de point d'appui. L'indice de Marine Le Pen s'établit à 1,44 chez les non-bacheliers et à 0,49 chez les diplômés de bac+5.</p>
+    <p>Candidats absents de l'enquête du Cevipof. David Lisnard et Agnès Lagarde n'ont pas de profil dans le modèle. Sans point d'appui, le profil d'Agnès Lagarde reposait sur une seule hypothèse d'un seul sondage (<var>Ī</var> = 0,45 chez les non-bacheliers, 1,76 chez les diplômés de bac+5). Chacun reçoit donc comme point d'appui le profil du candidat dont il reprend le point de départ à l'étape 5 (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde), avec le poids du Cevipof pour l'âge et celui du modèle pour le diplôme. Les indices d'Agnès Lagarde passent ainsi à 0,73 et 1,36.</p>
+    <figure class="graphe" id="g-ind-dip"><figcaption><b>Indice par diplôme</b><span>moyenne du modèle et de Cluster17</span></figcaption><div class="g-corps"></div></figure>
+    <h3>Contrôles</h3>
+    <ul>
+      <li>Chaque tableau saisi a été vérifié : la moyenne des tranches d'âge, pondérée par les votants du modèle, retrouve le score d'ensemble publié à 0,4-1,2&nbsp;point près (0,2-1,5&nbsp;point avec l'ancien modèle de participation). Le sondage Cluster17 d'octobre fait exception : Jean-Luc Mélenchon y obtient 3 à 3,5&nbsp;points de plus dans les tranches qu'au total, et Marine Le Pen 4,5&nbsp;points de moins, probablement parce que la pondération par âge des votants de l'institut diffère de celle du modèle. Les indices restent utilisables, car seuls les rapports entre tranches importent, le niveau étant recalé à l'étape 5.</li>
+      <li>Les tableaux extraits automatiquement des documents PDF ont été comparés aux originaux : toutes les lignes totalisent 100&nbsp;% à l'arrondi près, et les valeurs contrôlées une à une concordent.</li>
+      <li>Dans l'hypothèse « Philippe, Retailleau seul » de l'Ifop, Marine Le Pen obtient 50&nbsp;% chez les non-bacheliers et 18&nbsp;% chez les diplômés de bac+5, contre 47 et 18&nbsp;% chez Cluster17 en octobre et 46 et 12&nbsp;% en novembre.</li>
+      <li>Les deux vagues de Cluster17 divergent parfois nettement (Jean-Luc Mélenchon chez les diplômés de bac+5 : 29&nbsp;% puis 17&nbsp;%), ce qui justifie le poids conservé par le modèle.</li>
+    </ul>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>Chaque candidat a un profil unique, toutes hypothèses de candidatures confondues. Ce choix rend les profils stables, mais insensibles aux changements de l'offre électorale : lorsque Gabriel Attal se retire, l'électorat d'Édouard Philippe change de niveau, mais non de forme.</li>
+      <li>Les instituts emploient des méthodes différentes (enquêtes en ligne ou non, redressements). La moyenne les traite comme interchangeables.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Intégrer les tableaux par diplôme d'autres instituts dès leur publication ; aucun autre que Cluster17 n'en publie à ce jour pour 2027.</li>
+        <li>Calculer des indices propres à chaque hypothèse lorsque la taille de l'échantillon le permet, afin d'observer les reports des électeurs d'un candidat qui se retire.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 5 -->
+  <section class="etape" id="e5">
+    <h2><span class="num">5</span> Calage sur le sondage affiché <span class="fiab f2">Assez solide</span></h2>
+    <p class="resume">L'ensemble est ensuite ajusté sur le sondage sélectionné dans la page Carte : les scores nationaux et la participation sont ceux du sondage, et le vote par âge et par diplôme est conforme à la moyenne des instituts. Le détail âge par âge conserve la forme reconstituée aux étapes précédentes.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Données</h3>
+    <p>La notice du sondage déposée auprès de la Commission des sondages fournit les scores de chaque hypothèse, en pourcentage des suffrages exprimés, et la participation retenue. Les sondages actuellement disponibles sont ceux de YouGov (19 novembre), d'Elabe (14 novembre), de Cluster17 (11 novembre) et de l'Ifop (3 novembre), auxquels s'ajoutent les six hypothèses du Cevipof. Celles-ci font l'objet du même calage, à une différence près : le Cevipof publie son propre vote par âge, mesuré sur 13 000 inscrits, et c'est ce profil qui est retenu à la place de la moyenne des instituts.</p>
+    <h3>Méthode</h3>
+    <p>a. Participation. Toutes les cases sont décalées d'une même constante sur l'échelle logit, de manière à retrouver la participation du sondage :</p>
+    <p class="formule">logit <var>p</var>′(<var>a</var>, <var>d</var>) = logit <var>p</var>(<var>a</var>, <var>d</var>) + <var>c</var>′</p>
+    <p>b. Profil de départ. On retient le profil <var>S</var><sup>0</sup><sub><var>k</var></sub>(<var>a</var>, <var>d</var>) du candidat dans l'hypothèse du Cevipof la plus proche. Un candidat absent de cette enquête reprend celui d'un candidat proche : Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde.</p>
+    <p>c. Cibles. Trois cibles doivent être atteintes simultanément :</p>
+    <ul>
+      <li>le score national de chaque candidat, exactement ;</li>
+      <li>pour chaque tranche d'âge <var>t</var>, <var>T</var>(<var>t</var>, <var>k</var>) ∝ score<sub><var>k</var></sub> × <var>Ī<sub>k</sub></var>(<var>t</var>) × votants(<var>t</var>), ajusté par calage pour que chaque tranche totalise ses votants et chaque candidat son score ;</li>
+      <li>pour chaque groupe de diplôme, une cible construite de la même façon à partir des indices de diplôme.</li>
+    </ul>
+    <p>d. Ajustement. On cherche des coefficients multiplicatifs appliqués au profil de départ :</p>
+    <p class="formule"><var>S<sub>k</sub></var>(<var>a</var>, <var>d</var>) = <var>S</var><sup>0</sup><sub><var>k</var></sub>(<var>a</var>, <var>d</var>) × e<sup><var>f<sub>k</sub></var> + <var>F<sub>k</sub></var>(<var>a</var>) + <var>H<sub>k</sub></var>(<var>g</var>(<var>d</var>))</sup>, &nbsp; normalisé pour que Σ<sub><var>k</var></sub> <var>S<sub>k</sub></var> = 1 dans chaque case</p>
+    <p><var>F<sub>k</sub></var>(<var>a</var>) est défini au milieu de chaque tranche d'âge (l'âge moyen des inscrits de la tranche, soit 76 ans pour les 65 ans et plus) et interpolé linéairement, afin d'éviter toute discontinuité d'une tranche à l'autre. <var>H<sub>k</sub></var> s'applique à l'ensemble d'un groupe de diplôme. <var>F</var>, <var>H</var> et <var>f</var> sont corrigés successivement, par calage itératif, jusqu'à un écart inférieur à 0,000 1&nbsp;point au niveau national et à 0,01&nbsp;point par âge et par diplôme. Enfin, <var>s<sub>k</sub></var> = <var>S<sub>k</sub></var> × <var>p</var>′.</p>
+    <p>e. Votes blancs et nuls. Les sondages ne publient que des scores parmi les suffrages exprimés, alors que la participation inclut tous les votants. Dans chaque case, une part fixe de votes blancs et nuls est donc retirée des votants : 2,2&nbsp;%, comme au premier tour de 2022 (790 760 sur 35 923 707 votants). Les scores parmi les exprimés ne changent pas ; les voix de chaque candidat diminuent de 2,2&nbsp;%, et les votes blancs et nuls forment une couleur distincte, représentant environ 1,6&nbsp;% des inscrits.</p>
+    <h3>Résultat</h3>
+    <p>Pour toutes les hypothèses, l'écart est nul au niveau national (0,000 0&nbsp;point), d'au plus 0,01&nbsp;point par âge et d'au plus 0,002&nbsp;point par diplôme. Le croisement détaillé, sur 83 âges et 6 niveaux de diplôme, conserve la forme du Cevipof ; les marges sont celles des instituts.</p>
+    <p>Les graphiques suivants présentent le croisement reconstitué : le score parmi les suffrages exprimés, à chaque âge et pour chaque niveau de diplôme. Hypothèse affichée : <i id="g-res-hyp"></i>.</p>
+    <div class="g-leg g-leg-commune"><span><i style="--c:var(--dip0)"></i>Sans diplôme</span><span><i style="--c:var(--dip1)"></i>CAP-BEP</span><span><i style="--c:var(--dip2)"></i>Bac</span><span><i style="--c:var(--dip3)"></i>Bac+2</span><span><i style="--c:var(--dip4)"></i>Bac+3/4</span><span><i style="--c:var(--dip5)"></i>Bac+5 et +</span></div>
+    <div class="g-duo"><figure class="graphe" id="g-res-lepen"><figcaption><b>Le Pen, % des exprimés</b></figcaption><div class="g-corps"></div></figure><figure class="graphe" id="g-res-melenchon"><figcaption><b>Mélenchon, % des exprimés</b></figcaption><div class="g-corps"></div></figure></div>
+    <p class="g-note">L'écart entre les courbes traduit l'effet du diplôme, et leur forme commune celui de l'âge. Le modèle ne comportant pas d'interaction, l'écart entre niveaux de diplôme varie peu d'un âge à l'autre ; il s'agit d'une hypothèse. La baisse rapide du vote pour Marine Le Pen entre 59 et 63 ans ne résulte pas d'un défaut de calage, mais du passage à la retraite : dans le modèle de l'étape 3, les ouvriers et employés deviennent « retraités », catégorie dans laquelle Marine Le Pen obtient un score nettement plus faible selon le Cevipof. L'effet est plausible, mais sa brutalité dépend de cette hypothèse.</p>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>Les scores du sondage sont repris tels quels, avec leur marge d'erreur, de l'ordre de ±3&nbsp;points pour Marine Le Pen sur 1 000 suffrages exprimés.</li>
+      <li>Un seul sondage est représenté à la fois. Les écarts entre instituts (Marine Le Pen entre 30,5 et 37&nbsp;%) apparaissent en changeant d'hypothèse, mais non sur une même figure.</li>
+      <li>Les profils empruntés (David Lisnard, Agnès Lagarde) combinent les tableaux publiés par les instituts et le profil du candidat proche qui leur sert d'appui (étape 4).</li>
+      <li>Le taux de votes blancs et nuls est le même dans toutes les cases. Aucune source ne le donne par âge et par diplôme, et il varie d'une élection à l'autre. Une erreur sur ce taux modifie légèrement les voix de tous les candidats, mais non leurs scores parmi les exprimés.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Proposer une hypothèse fondée sur la moyenne des sondages, pondérée par leur taille et leur ancienneté, comme pour les profils.</li>
+        <li>Représenter l'incertitude du score national, en refaisant le calcul avec des scores tirés dans leur marge d'erreur (bootstrap) et en montrant les zones de la pyramide qui changent de couleur.</li>
+      </ul>
+    </div>
+    <h3 id="fourchettes">Intervalles à 90&nbsp;%</h3>
+    <p>Les tableaux par âge et par diplôme des instituts proviennent d'échantillons de quelques centaines à quelques milliers de personnes ; leur marge d'erreur se répercute sur les estimations par zone. Pour la mesurer, le script <code>scripts/incertitude.py</code> (commande <code>make incertitude</code>, une vingtaine de secondes) refait 100 fois les étapes 4 et 5. À chaque répétition, chaque tableau publié (un sondage, une hypothèse, une tranche d'âge ou un groupe de diplôme, y compris le tableau par âge du Cevipof) est tiré aléatoirement, avec un effectif égal au nombre estimé de suffrages exprimés du sondage multiplié par la part du groupe parmi les votants. Pour chaque zone (tranche d'âge × diplôme) et chaque candidat, on retient le 5<sup>e</sup> et le 95<sup>e</sup> centile du score parmi les exprimés.</p>
+    <p>Le tableau de sélection les affiche entre parenthèses, après le score parmi les exprimés, par exemple « 31,4&nbsp;% exp. (28-32) ». Lorsque la sélection couvre plusieurs zones, l'intervalle est la moyenne de leurs bornes, pondérée par leurs suffrages exprimés ; on suppose ainsi que les erreurs vont dans le même sens d'une zone à l'autre, ce qui conduit à un intervalle plutôt large que trop étroit. Le site ne les affiche que s'ils ont été calculés sur les données affichées, c'est-à-dire avec la même empreinte que <code>data.json</code>.</p>
+    <p>Ces intervalles ne couvrent pas la marge d'erreur du score national du sondage affiché (la pyramide décrit la répartition d'un score donné), ni les tableaux par profession du Cevipof (étape 3), ni les hypothèses du modèle : participation, absence d'interaction entre âge et diplôme, paramètres fixés sans source (voir le tableau correspondant plus bas). En pratique, ils mesurent surtout l'incertitude laissée par la moyenne des instituts : environ 1&nbsp;point de largeur pour la moitié des zones et des candidats, et jusqu'à 3&nbsp;points ou davantage pour les petits groupes.</p>
+    </details>
+  </section>
+
+  <!-- 6 -->
+  <section class="etape" id="e6">
+    <h2><span class="num">6</span> Représentation en taches <span class="fiab f2">Fidèle à T = 1, accentuée en dessous</span></h2>
+    <p class="resume">La largeur de la pyramide à chaque âge correspond au nombre d'inscrits. Chaque point reçoit la couleur d'un candidat par tirage aléatoire, en favorisant le candidat le plus fort à cet endroit, et les points sont regroupés en taches pour rester lisibles. Au total, chaque couleur occupe exactement une surface proportionnelle à ses voix, tandis que la position précise d'une tache varie d'un tirage à l'autre. Dans chaque zone, le réglage « Partage des taches » (<var>T</var>) détermine la composition dessinée : à <var>T</var> = 1, chaque zone a la composition du modèle ; en dessous, le candidat en tête de chaque zone y occupe une surface supérieure à sa part. Avec le réglage d'ouverture (« Lisible, proche des données », <var>T</var> = 0,7), au moins <span class="js-dep-ouverture">7 %</span> de la surface d'une zone porte en moyenne une autre couleur que dans le modèle, un peu plus avec le regroupement. Les chiffres de la sélection sont calculés à partir du modèle et ne dépendent pas de ce réglage.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Forme de la pyramide</h3>
+    <p>À chaque âge, la largeur de la pyramide est égale au nombre d'inscrits de cet âge. À gauche de l'axe figurent, du centre vers l'extérieur, le baccalauréat, le CAP-BEP et l'absence de diplôme ; à droite, le bac+2, le bac+3/4 et le bac+5. Chaque couloir a une largeur <var>N</var>(<var>a</var>, <var>d</var>), et ses bornes sont interpolées linéairement entre deux âges. Chaque pixel appartient ainsi à une case, et tous les pixels représentent le même nombre d'inscrits.</p>
+    <h3>Attribution des couleurs</h3>
+    <p>Chaque pixel <var>x</var> de la case <var>c</var> prend la couleur du candidat qui maximise :</p>
+    <p class="formule">ln <var>s<sub>k</sub></var>(<var>c</var>) + <var>b<sub>k</sub></var> + <var>T</var> × <var>g<sub>k</sub></var>(<var>x</var>)</p>
+    <ul>
+      <li><var>g<sub>k</sub></var>(<var>x</var>) est un bruit aléatoire propre à chaque candidat, distribué selon une loi de Gumbel. Il est obtenu à partir d'un bruit blanc gaussien, lissé par trois flous successifs d'un rayon d'environ 0,9 fois la taille des taches, puis standardisé et transformé : <var>u</var> = Φ(<var>z</var>), <var>g</var> = −ln(−ln <var>u</var>).</li>
+      <li>Le choix de la loi de Gumbel tient à la propriété suivante : avec <var>T</var> = 1 et un bruit non lissé, retenir le maximum de ln <var>s<sub>k</sub></var> + <var>g<sub>k</sub></var> revient exactement à tirer un candidat avec les probabilités <var>s<sub>k</sub></var> (méthode dite de Gumbel-max). Le lissage regroupe ces tirages en taches, au lieu d'une dispersion point par point.</li>
+      <li><var>T</var> désigne le partage des taches. Lorsqu'il tend vers 0, le candidat en tête de la case occupe toute la surface ; à <var>T</var> = 1, chaque candidat occupe une surface proportionnelle à son score.</li>
+      <li><var>b<sub>k</sub></var> est une correction propre à chaque candidat, qui garantit que la surface de chaque couleur est égale à sa part des voix. Avec un bruit de Gumbel, la surface attendue de chaque couleur dans une case vaut softmax((ln <var>s<sub>k</sub></var> + <var>b<sub>k</sub></var>) / <var>T</var>) ; <var>b</var> peut donc être déterminé directement sur les 498 cases, sans examiner les pixels, par la mise à jour <var>b<sub>k</sub></var> += <var>T</var> × ln(cible / attendu). Sur le tirage effectif, où le bruit est lissé, les surfaces s'écartent alors de 0,3 à 1,3&nbsp;point de leur cible ; quelques passes de finition sur l'ensemble des pixels (<var>b<sub>k</sub></var> += α × <var>T</var> × ln(cible / obtenu), avec α = 0,8 au départ et un pas borné à ±<var>T</var>/2) ramènent cet écart à 0,03&nbsp;point.</li>
+    </ul>
+    <p>L'exemple suivant porte sur une bande fictive où la part du bleu décroît de 80&nbsp;% à gauche à 20&nbsp;% à droite, le rouge occupant le reste :</p>
+    <div class="demo">
+      <div><canvas data-t="1" data-grain="0" role="img" aria-label="Tirage pixel par pixel"></canvas><div><b>T = 1, sans lissage</b> : tirage pixel par pixel<small></small></div></div>
+      <div><canvas data-t="1" data-grain="5" role="img" aria-label="Taches proportionnelles aux scores"></canvas><div><b>T = 1, avec lissage</b> : surfaces proportionnelles aux scores<small></small></div></div>
+      <div><canvas data-t="0.35" data-grain="2" role="img" aria-label="Taches fines, partage bas"></canvas><div><b>T = 0,35, taches fines</b> : style « Lisible », ancien réglage d'ouverture<small></small></div></div>
+      <div><canvas data-t="0.1" data-grain="5" role="img" aria-label="Le candidat en tête occupe presque toute la surface"></canvas><div><b>T = 0,1</b> : le candidat en tête occupe presque toute la surface<small></small></div></div>
+    </div>
+    <p class="g-note">Dans les quatre cas, la correction <var>b</var> conserve au bleu la moitié de la surface, soit sa part moyenne. Seule change la manière dont il se regroupe : mêlé au rouge en proportion de sa part à T = 1, il en est presque séparé par une frontière à 50&nbsp;% à T = 0,1.</p>
+    <h3>Effet de <var>T</var> sur la composition des zones</h3>
+    <p>La correction <var>b</var> ne garantit que le total de chaque candidat. Lorsque <var>T</var> est inférieur à 1, elle y parvient en déplaçant une partie de ses surfaces vers ses bastions. Avec un bruit de Gumbel, la surface attendue de chaque couleur dans une case vaut :</p>
+    <p class="formule">softmax<sub><var>k</var></sub>((ln <var>s<sub>k</sub></var>(<var>c</var>) + <var>b<sub>k</sub></var>) / <var>T</var>)</p>
+    <p>À <var>T</var> = 1, cette expression est exactement égale à <var>s<sub>k</sub></var>(<var>c</var>). En dessous, les rapports entre candidats sont élevés à la puissance 1/<var>T</var> : le candidat en tête de la zone gagne de la surface, les autres en perdent. Le tableau suivant mesure cet effet sur l'hypothèse <span class="js-dep-hyp"></span>, zone par zone (36 zones croisant tranche d'âge et diplôme), en l'absence de bruit :</p>
+    <table class="petit-tab" id="t-partage"></table>
+    <p class="g-note">La surface déplacée est la part de la surface de chaque zone dessinée d'une autre couleur que dans le modèle, en moyenne pondérée par les inscrits. Sur un tirage effectif, l'écart est presque identique, et le regroupement l'accroît encore. Comme la concentration γ de la page Électorat par candidat, un partage faible accentue les bastions et ne constitue pas une mesure. La même valeur s'affiche sous le curseur « Partage des taches ».</p>
+    <h3>Réglages complémentaires</h3>
+    <ul>
+      <li>Regroupement (gravité). Chaque pixel est attiré par les pixels de même couleur situés autour de lui. Pour chaque candidat, on mesure la densité <var>ρ<sub>k</sub></var>(<var>x</var>) de ses pixels dans un rayon donné (deux flous en boîte appliqués à son indicatrice), que l'on ajoute au score :
+        <p class="formule">ln <var>s<sub>k</sub></var>(<var>c</var>) + <var>b<sub>k</sub></var> + <var>T</var> × <var>g<sub>k</sub></var>(<var>x</var>) + gravité × <var>ρ<sub>k</sub></var>(<var>x</var>)</p>
+        L'opération est répétée trois fois, <var>b<sub>k</sub></var> étant réajusté à chaque passe : les pixels isolés rejoignent les taches voisines et les taches proches fusionnent, sans modification de la surface totale de chaque candidat (écart mesuré : 0,03&nbsp;point au plus).</li>
+      <li>Portée de la gravité. Il s'agit du rayon de cette attraction : faible, il régularise les bords des taches ; élevé, il les fusionne en grandes plaques.</li>
+      <li>Forme des taches. Le bruit est davantage lissé horizontalement que verticalement, ce qui allonge les taches dans le sens des âges, à surface moyenne égale.</li>
+      <li>Liseré. Le trait blanc qui sépare les taches dépend du style choisi. Il occupe un pixel au bord de chaque tache ; or les taches petites et dispersées ont un périmètre important rapporté à leur surface, si bien que, sans correction, elles perdaient jusqu'à 10&nbsp;% de leur surface visible au profit des grandes plaques (abstention, Marine Le Pen). Lorsque le liseré est affiché, <var>b<sub>k</sub></var> est donc réajusté sur les seuls pixels colorés, comptés sur l'ensemble de l'image : chaque couleur y occupe sa part des voix à 0,03&nbsp;point près.</li>
+    </ul>
+    <p>À forte intensité, le regroupement fait déborder une grande plaque d'une case sur les cases voisines. Le total de chaque candidat reste exact, mais sa part case par case l'est moins ; le réglage accentue alors les bastions et ne constitue pas une mesure.</p>
+    <h3>Précision</h3>
+    <p>Les lignes de pixels étant entières, une année d'âge occupe huit ou neuf lignes selon l'arrondi. À partir de 26 ans, une case compte donc en moyenne 6&nbsp;% de pixels en trop ou en moins, un peu plus dans les petites cases ; dans les très petites cases de 95 ans et plus, l'écart peut atteindre le double, ou la case peut ne compter aucun pixel. Avant 21 ans, l'écart moyen atteint 22&nbsp;%, car les bords des couloirs sont interpolés linéairement entre deux âges pour rester réguliers, alors que la composition par diplôme y change rapidement. Sur de grandes zones, ces écarts se compensent, et la correction <var>b<sub>k</sub></var> conserve à chaque couleur sa part des voix. Les chiffres de la sélection ne dépendent pas de ces pixels : les générations et l'ensemble des inscrits additionnent directement leurs cases âge × diplôme, et, pour un contour tracé à la main, chaque pixel sélectionné est pondéré par le nombre d'inscrits de sa case divisé par son nombre de pixels.</p>
+    <p>Sur l'ensemble des hypothèses et des styles, avec ou sans liseré, les surfaces dessinées s'écartent des voix de 0,03&nbsp;point au plus. À l'échelle d'une case, en revanche, l'emplacement des taches résulte d'un tirage : un nouveau tirage les déplace, sans modifier leur surface totale ni la tendance par âge et par diplôme. C'est pourquoi la lecture doit se faire par zones (sélection, générations) et non point par point.</p>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Ajouter une correction finale exacte des surfaces, en réaffectant les quelques pixels excédentaires, pour obtenir un écart nul.</li>
+        <li>Proposer un mode sans tirage aléatoire (bandes ordonnées dans chaque case), permettant de lire des valeurs précises.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 7 -->
+  <section class="etape" id="electorats">
+    <h2><span class="num">7</span> Électorat par candidat <span class="fiab f2">Lecture : assez solide</span></h2>
+    <p class="resume">La page Électorat par candidat attribue à chaque candidat une quantité de couleur proportionnelle à ses voix, placée en priorité dans les cases où il obtient ses meilleurs scores. Chaque pyramide indique ainsi où se trouvent ses électeurs et combien ils sont. Le réglage de concentration détermine le degré de mise en avant des bastions, et le renforcement rend visibles les zones où l'électorat est peu présent.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <p>La page <a href="electorats.html">Électorat par candidat</a> repart des mêmes cases (<var>N</var>, <var>s<sub>k</sub></var>) et les représente autrement : une pyramide par candidat, puis leur superposition.</p>
+    <h3>Principe</h3>
+    <p>Chaque candidat dispose d'une quantité de couleur égale à ses voix, une case entièrement remplie correspondant à la totalité de ses inscrits. Cette couleur est placée en priorité dans les cases où il est le plus fort. Sa pyramide montre donc où se trouvent ses électeurs, et la quantité de couleur, à la même échelle pour tous les candidats, indique leur nombre.</p>
+    <h3>Méthode</h3>
+    <p>a. Lissage. Les parts sont d'abord lissées d'un âge à l'autre par un noyau gaussien (σ = 3 ans, sur ±9 ans) pondéré par les inscrits. Sans ce lissage, la puissance appliquée au point b ferait apparaître sous forme de rayures les petites discontinuités entre tranches d'âge.</p>
+    <p class="formule"><var>š<sub>k</sub></var>(<var>a</var>, <var>d</var>) = Σ<sub><var>j</var></sub> <var>G</var>(<var>a</var> − <var>j</var>) <var>N</var>(<var>j</var>, <var>d</var>) <var>s<sub>k</sub></var>(<var>j</var>, <var>d</var>) / Σ<sub><var>j</var></sub> <var>G</var>(<var>a</var> − <var>j</var>) <var>N</var>(<var>j</var>, <var>d</var>), &nbsp; <var>G</var>(<var>u</var>) = e<sup>−<var>u</var>²/18</sup></p>
+    <p>b. Épaisseur de la couche. Dans chaque case, l'épaisseur varie de 0 (aucune couleur) à 1 (couche pleine) :</p>
+    <p class="formule"><var>e<sub>k</sub></var>(<var>c</var>) = min(1, λ<sub><var>k</var></sub> × <var>š<sub>k</sub></var>(<var>c</var>)<sup>γ</sup>), &nbsp; avec λ<sub><var>k</var></sub> tel que Σ<sub><var>c</var></sub> <var>e<sub>k</sub></var>(<var>c</var>) <var>N</var>(<var>c</var>) = Voix<sub><var>k</var></sub></p>
+    <ul>
+      <li>λ<sub><var>k</var></sub> est déterminé par dichotomie sur ln λ (70 itérations), de sorte que la quantité de couleur soit exactement égale aux voix.</li>
+      <li>γ correspond au réglage de concentration. À γ = 1, l'épaisseur est égale à la part du candidat dans la case. Plus γ est élevé, plus la couleur se concentre dans les cases où il est le plus fort ; à γ = 8, valeur par défaut, elle remplit d'abord ses bastions.</li>
+    </ul>
+    <div class="g-leg g-leg-commune"><span><i style="--c:var(--dip1)"></i>γ = 1 (part du candidat)</span><span><i style="--c:var(--dip3)"></i>γ = 3</span><span><i style="--c:var(--dip5)"></i>γ = 8 (par défaut)</span></div>
+    <div class="g-duo"><figure class="graphe" id="g-gam-cap"><figcaption><b>Le Pen, couloir CAP-BEP</b></figcaption><div class="g-corps"></div></figure><figure class="graphe" id="g-gam-b5"><figcaption><b>Le Pen, couloir Bac+5</b></figcaption><div class="g-corps"></div></figure></div>
+    <p class="g-note">Épaisseur de la couche selon l'âge. La quantité totale de couleur est la même dans les trois cas : lorsque γ augmente, elle quitte les diplômés de bac+5 pour se concentrer sur les titulaires d'un CAP-BEP de 35 à 65 ans.</p>
+    <p>Renforcement. Un réglage multiplie l'épaisseur par un facteur <var>r</var> compris entre 1 et 3 : <var>e</var>′<sub><var>k</var></sub> = min(1, <var>r</var> × <var>e<sub>k</sub></var>). À 1, la surface colorée est égale aux voix. Au-delà, elle les excède : les zones où l'électorat est peu présent mais réel deviennent visibles, au prix de la proportionnalité entre surface et voix. Comme la concentration, ce réglage accentue certains traits et ne constitue pas une mesure.</p>
+    <p>c. Superposition. La figure principale superpose les couches. En chaque point :</p>
+    <p class="formule">teinte = Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var> × couleur<sub><var>k</var></sub> / Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var>, &nbsp; couverture = min(1, Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var>)</p>
+    <p>L'ordre des candidats est sans effet. À γ = 1, abstention comprise, Σ <var>e<sub>k</sub></var> = 1 en tout point : la pyramide est entièrement couverte, en teintes mêlées. Plus γ est élevé, plus certaines zones restent blanches ; ce sont les cases qu'aucun candidat ne domine suffisamment pour y concentrer sa couleur (à γ = 8, 19&nbsp;% de la surface reste pâle).</p>
+    <p>d. Petits candidats. Les candidats recueillant moins de 3,5&nbsp;% des suffrages exprimés sont regroupés en deux couches, « Petits candidats de gauche » et « Petits candidats de droite » (droite et extrême droite), dont les voix et les parts sont additionnées. Eric Zemmour et Nicolas Dupont-Aignan sont toujours rattachés à la couche de droite, même lorsque Eric Zemmour dépasse le seuil (3,5 à 4,5&nbsp;% selon les sondages). Un petit candidat seul dans son camp reste représenté séparément. Les sondages ne comptent que quelques dizaines de leurs électeurs par tranche d'âge : leur profil propre relèverait surtout de l'aléa d'échantillonnage, que la concentration amplifierait.</p>
+    <h3>Hypothèses et conséquences</h3>
+    <ul>
+      <li>γ relève d'un choix de représentation et non d'une donnée. À γ = 8, la pyramide accentue délibérément les bastions ; la forme obtenue à γ = 1 est la plus fidèle.</li>
+      <li>Ces pyramides héritent de toutes les fragilités des étapes 2 à 5, en particulier de celles du croisement entre âge et diplôme.</li>
+    </ul>
+    <div class="pistes"><b>Pistes d'amélioration</b>
+      <ul>
+        <li>Afficher la valeur de γ dans la légende de chaque image, afin qu'une image diffusée ne soit pas lue comme la répartition effective.</li>
+      </ul>
+    </div>
+    </details>
+  </section>
+
+  <!-- 8 -->
+  <section class="etape" id="bilan">
+    <h2><span class="num">8</span> Bilan, limites et pistes</h2>
+    <p class="resume">Le nombre d'inscrits et la représentation graphique sont solides ; la participation l'est moins. La principale faiblesse tient à ce que le vote croisé par âge et par diplôme est estimé par un modèle, faute de données publiées. La meilleure façon de l'améliorer serait d'exploiter les réponses individuelles de l'enquête du Cevipof.</p>
+    <table class="fiab-tab">
+      <thead><tr><th>Étape</th><th>Fiabilité</th><th>Principale faiblesse</th></tr></thead>
+      <tbody>
+        <tr><td>1. Inscrits</td><td><span class="fiab f1">Solide</span></td><td>Taux d'inscription supposé identique quel que soit le diplôme.</td></tr>
+        <tr><td>2. Participation</td><td><span class="fiab f3">Fragile</span></td><td>Profil mesuré en 2022 et non en 2027 ; écart entre diplômes connu seulement aux extrêmes ; niveau susceptible d'évoluer d'ici au scrutin.</td></tr>
+        <tr><td>3. Profils de référence</td><td><span class="fiab f2">Assez solide</span></td><td>Croisement âge × diplôme modélisé, sans interaction, et non observé.</td></tr>
+        <tr><td>4. Moyenne des instituts</td><td><span class="fiab f1">Âge solide</span><br><span class="fiab f2">Diplôme moyen</span></td><td>Un seul institut publie des résultats par diplôme.</td></tr>
+        <tr><td>5. Calage</td><td><span class="fiab f2">Assez solide</span></td><td>Marge d'erreur du sondage (±2 à 3&nbsp;points) ; un seul sondage représenté à la fois.</td></tr>
+        <tr><td>6. Représentation en taches</td><td><span class="fiab f2">Fidèle à T = 1,<br>accentuée en dessous</span></td><td>Le total de chaque candidat est exact. En dessous de T = 1, le candidat en tête de chaque zone y occupe une surface supérieure à sa part : avec le réglage d'ouverture, au moins <span class="js-dep-ouverture">7 %</span> de la surface d'une zone change de couleur. L'emplacement des taches résulte d'un tirage et ne se lit pas point par point.</td></tr>
+        <tr><td>7. Électorat par candidat</td><td><span class="fiab f2">Assez solide</span></td><td>La concentration γ accentue délibérément les bastions.</td></tr>
+      </tbody>
+    </table>
+    <h3>Améliorations, par ordre de priorité</h3>
+    <ol class="priorites">
+      <li>Données individuelles du Cevipof (étape 3). C'est le seul moyen d'observer le croisement entre âge et diplôme au lieu de le modéliser. Gain très important ; nécessite une demande d'accès chercheur.</li>
+      <li>Informations propres à 2027 sur la participation (étape 2) : corriger le profil de 2022 par la certitude d'aller voter mesurée par âge et par diplôme dans les sondages. Ce serait le moyen de saisir une mobilisation propre à 2027 ; l'effort est faible, les données étant publiées.</li>
+      <li>Mesure de l'incertitude (étape 5). Elle est en place pour les tableaux par âge et par diplôme (intervalles à 90&nbsp;% de la sélection, voir <a href="#fourchettes">l'étape 5</a>) ; il resterait à y intégrer la marge d'erreur nationale de chaque sondage et une moyenne de plusieurs sondages.</li>
+      <li>Autres sources pour le diplôme (étape 4). Gain moyen ; l'effort dépend des publications des instituts.</li>
+      <li>Taux d'inscription par diplôme (étape 1). Gain faible à moyen ; effort faible si l'INSEE publie ce taux.</li>
+    </ol>
+    <h3 id="reglages">Paramètres fixés sans source</h3>
+    <p>Quelques constantes du calcul ne reposent sur aucune source et ont été fixées par choix. Le tableau présente l'effet de chacune, divisée ou multipliée par 3, toutes choses égales par ailleurs, sur des profils où elle intervient. L'indice rapporte le score dans le groupe au score d'ensemble ; un indice de 1,22 correspond à une surreprésentation de 22&nbsp;%. Calcul : <code>scripts/sensibilite.py</code>.</p>
+    <table class="petit-tab" id="t-sensibilite"></table>
+    <p class="g-note">Les profils des principaux candidats varient à peine (Marine Le Pen : de 1,42 à 1,47 chez les moins diplômés). Ceux des petits candidats, qui reposent sur peu de sondages, varient davantage, de 10 à 25&nbsp;% selon le paramètre (Eric Zemmour chez les 18-24 ans : de 0,70 à 1,01 selon la pondération par l'ancienneté des sondages). Ces écarts ne sont pas pris en compte dans les intervalles de la sélection, qui ne mesurent que l'aléa d'échantillonnage.</p>
+
+    <h3>Précautions générales</h3>
+    <ul>
+      <li>Il s'agit d'intentions de vote et non de votes. À plusieurs mois du scrutin, les intentions, et plus encore la participation, évoluent. La pyramide décrit l'état des sondages et non le résultat de 2027.</li>
+      <li>Les marges d'erreur augmentent dans les sous-groupes. Un sondage de 1 000 suffrages exprimés a une marge de 2 à 3&nbsp;points au niveau national, et bien davantage sur une tranche d'âge. Les petites cases (plus de 90 ans, jeunes diplômés de bac+5) sont les plus fragiles.</li>
+      <li>Les profils évoluent lentement. Lorsqu'un candidat progresse dans un sondage, sa progression est répartie selon le profil moyen des instituts, et non selon ce que ce sondage mesure chez les jeunes ou les retraités.</li>
+      <li>Les profils empruntés (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde) servent de point de départ et d'appui ; les tableaux publiés par les instituts les corrigent, d'autant plus qu'ils sont nombreux.</li>
+      <li>Ces résultats ne permettent aucune conclusion individuelle. Qu'un groupe vote à 40&nbsp;% pour un candidat ne dit rien du vote d'une personne de ce groupe : l'âge et le diplôme n'expliquent qu'une faible partie des comportements individuels.</li>
+    </ul>
+  </section>
+
+  <!-- 9 -->
+  <section class="etape" id="sources">
+    <h2><span class="num">9</span> Sources et reproductibilité</h2>
+    <p class="resume">Toutes les données utilisées sont publiques : l'INSEE pour la population et la participation, les rapports des instituts et les notices déposées auprès de la Commission des sondages pour le vote. Les calculs sont réalisés par des scripts qui peuvent être relancés en une seule commande et produisent des résultats identiques.</p>
+    <details class="detail">
+    <summary>Explication détaillée</summary>
+    <h3>Population et participation</h3>
+    <ul>
+      <li>INSEE, recensement de la population de 2022, fichier détail « individus » (17,5 millions de fiches).</li>
+      <li>INSEE, répertoire électoral unique : inscrits au 11 février 2026 par tranche d'âge (Insee Focus n° 378).</li>
+      <li>INSEE, enquête sur la participation électorale de 2022 : participation par âge, premier tour par grande tranche d'âge, écarts selon le diplôme et chez les étudiants (Insee Première n° 1928 et 1929, et leurs tableaux complémentaires).</li>
+    </ul>
+    <h3>Vote</h3>
+    <ul>
+      <li>Cevipof / Ipsos, Enquête électorale française, vague 3 (3-9 septembre 2026, 13 060 inscrits) : vote par âge et par profession, six hypothèses.</li>
+      <li>Ipsos / Sopra Steria, sociologie des électorats du premier tour de 2022 (4 000 inscrits) : validation de la méthode et effet propre du diplôme.</li>
+      <li>Ipsos / Sopra Steria, sociologie des électorats et profil des abstentionnistes du premier tour de 2017 (23 avril 2017) : test du modèle de participation sur 2017.</li>
+      <li>Vote par âge, et par diplôme pour Cluster17, relevé dans les rapports détaillés : Cluster17 pour Politico (19-22 octobre et 9-10 novembre), Elabe pour BFMTV et La Tribune Dimanche (26-28 août et 12-13 novembre), Odoxa pour Public Sénat et la presse régionale (24 septembre-7 octobre, 12 005 répondants), OpinionWay Presitrack (9-10 novembre).</li>
+    </ul>
+    <h3>Sondages affichés (notices de la Commission des sondages)</h3>
+    <ul>
+      <li>YouGov pour Le HuffPost, terrain du 12 au 17 novembre 2026 (1 030 personnes, dont 952 inscrits) : quatre des cinq hypothèses ; la cinquième, qui teste Dominique de Villepin et Teddy Riner, n'est pas reprise, faute de profils pour ces candidats. YouGov publie ses intentions parmi les « votants décidés », pondérés par leur intention d'aller voter, sans donner de taux de participation ; on retient celle du premier tour de 2022 des inscrits en France (74,9&nbsp;%). La notice ne comporte pas de résultats par âge ni par diplôme.</li>
+      <li>Elabe pour BFMTV et La Tribune Dimanche, terrain des 12 et 13 novembre 2026 : deux des six configurations, celles qui ne testent que les candidats habituels. La participation est estimée à 72&nbsp;% : Elabe publie ses intentions parmi les inscrits qui évaluent entre 8 et 10 leur probabilité d'aller voter, sans en donner le nombre, et ses marges d'erreur sont calculées pour 1 000 personnes, soit environ 1 000 inscrits sur 1 391. C'est l'une des participations les moins assurées.</li>
+      <li>Cluster17 pour Politico, terrain des 9 et 10 novembre 2026 : trois hypothèses à onze candidats ; celle à dix-huit candidats n'est pas reprise, faute de profils pour les nouveaux candidats. Aucune participation n'étant publiée, on retient celle du premier tour de 2022 des inscrits en France (74,9&nbsp;%).</li>
+      <li>Ifop pour LCI, terrain du 27 au 29 octobre 2026 : quatre hypothèses. Participation : 96,7&nbsp;% des inscrits envisagent de voter, dont 78&nbsp;% se disent « tout à fait certains », soit 75,4&nbsp;% des inscrits.</li>
+      <li>Cevipof : ses six hypothèses, calées comme les autres sondages, mais avec son propre vote par âge et la participation de 2022 des inscrits en France (74,9&nbsp;%).</li>
+    </ul>
+    <h3>Reproductibilité</h3>
+    <p>Tous les calculs sont réalisés par des scripts Python, regroupés dans <code>scripts/</code>. Une seule commande les exécute dans l'ordre : <code>sh scripts/tout_recalculer.sh</code> (une quinzaine de secondes). Le fichier détail du recensement (650 Mo) n'est lu qu'une fois, à la première étape, qui en conserve un agrégat (<code>data/recensement_agrege.csv</code>, versionné) ; l'ensemble de la chaîne peut ainsi être exécuté sans ce fichier. Pour ne relancer que les étapes concernées par une modification, la commande <code>make</code> suffit, le <code>Makefile</code> décrivant les fichiers lus et écrits par chaque étape. À la fin, <code>scripts/verif_invariants.py</code> vérifie en moins d'une seconde que les parts somment à 1 dans chaque case, que les scores et la participation correspondent à chaque sondage et que les calages ont convergé ; la chaîne s'interrompt au premier écart. Relancée intégralement, la chaîne produit des fichiers identiques à l'octet près.</p>
+    <ul>
+      <li><code>01_pyramide.py</code> : inscrits (étape 1) ;</li>
+      <li><code>02_extraire_cevipof.py</code> : tableaux du Cevipof ;</li>
+      <li><code>verif_backtest_2022.py</code> : validation sur 2022 et effet propre du diplôme (à exécuter avant le script suivant, qui l'utilise) ;</li>
+      <li><code>03_profils.py</code> : participation et profils de référence (étapes 2 et 3) ;</li>
+      <li><code>02b_extraire_tris.py</code>, <code>03b_profils_age.py</code>, <code>03c_profils_diplome.py</code> : profils des instituts (étape 4) ;</li>
+      <li><code>05_caler_sondages.py</code> : calage (étape 5) ;</li>
+      <li><code>04_export_site.py</code>, <code>06_export_construction.py</code> : données du site.</li>
+    </ul>
+    <p>Pour ajouter un sondage, il suffit de saisir les chiffres de sa notice dans un fichier <code>sondages/&lt;institut&gt;_&lt;commanditaire&gt;_&lt;date&gt;.json</code>, sur le modèle des fichiers existants, puis de lancer <code>make</code> : seules les étapes qui en dépendent sont recalculées, en une ou deux secondes.</p>
+    </details>
+  </section>
+  <nav class="retour bas"><a href="#">↑ Haut de page</a></nav>
+</article>
+<script src="registre.js"></script>
+<script src="taches.js"></script>
+<script src="common.js"></script>
+<script src="methodes.js"></script>
+</body>
+</html>

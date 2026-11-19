@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Limites · Carte sociale du vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+<style>
+  .fiabilite .defile{overflow-x:auto;margin:.6em 0 1.2em}
+  .fiabilite .ctl-ligne{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;margin:.8em 0}
+  .fiabilite .ctl-ligne .ctl{min-width:220px;flex:1}
+  .fiabilite .ctl select{width:100%}
+  .carte-f{border-collapse:separate;border-spacing:3px;font-size:.8rem;font-variant-numeric:tabular-nums;width:100%;min-width:560px}
+  .carte-f th{font-size:.72rem;color:var(--muted);font-weight:600;padding:2px 4px;text-align:center}
+  .carte-f th.age{text-align:right;white-space:nowrap}
+  .carte-f td{border-radius:6px;padding:6px 4px;text-align:center;line-height:1.25;color:var(--fg)}
+  .carte-f td b{font-size:.92rem}
+  .carte-f td small{display:block;font-family:var(--f-mono);font-size:.68rem;opacity:.85}
+  .carte-f td.f1{background:color-mix(in srgb,#2fa35a 22%,transparent)}
+  .carte-f td.f2{background:color-mix(in srgb,#eda100 24%,transparent)}
+  .carte-f td.f3{background:color-mix(in srgb,#e34948 24%,transparent)}
+  .legende-f{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted);margin:.4em 0 1em}
+  .legende-f i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .tab-f{border-collapse:collapse;font-size:.86rem;font-variant-numeric:tabular-nums;width:100%;min-width:520px}
+  .tab-f th,.tab-f td{padding:5px 10px 5px 0;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .tab-f th:first-child,.tab-f td:first-child{text-align:left}
+  .tab-f th{font-size:.74rem;color:var(--muted);font-weight:600}
+  .tab-f tr.actuel td{font-weight:600}
+  .niveaux{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:1em 0}
+  .niveaux>div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .niveaux h3{margin:.2em 0 .4em;font-size:1rem}
+  .niveaux ul{margin:0;padding-left:1.1em;font-size:.92rem}
+  @media (max-width:760px){.niveaux{grid-template-columns:minmax(0,1fr)}}
+  .valeur-curseur{font-family:var(--f-mono);font-size:.9rem}
+</style>
+</head>
+<body>
+<nav class="onglets" aria-label="Pages du site"><a href="index.html">Carte</a><a href="electorats.html">Électorat par candidat</a><a href="methodes.html">Méthodes</a><a href="limites.html" aria-current="page">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
+<article class="doc fiabilite">
+  <h1>Limites des estimations et de leur représentation</h1>
+  <p class="chapo">La pyramide associe des données mesurées, comme le nombre d'inscrits et les scores nationaux des sondages, à une reconstitution : le vote de chaque case âge × diplôme, qu'aucun institut ne publie. Cette reconstitution est ensuite représentée graphiquement, avec des réglages susceptibles d'accentuer certains traits. Cette page évalue, chiffres à l'appui, le degré de confiance que l'on peut accorder à chacun de ces éléments.</p>
+
+  <section class="encadre">
+    <h2>Synthèse</h2>
+    <div class="niveaux">
+      <div><h3><span class="fiab f1">Solide</span></h3><ul>
+        <li>Le nombre d'inscrits dans chaque groupe d'âge et de diplôme.</li>
+        <li>Le score national de chaque candidat, celui du sondage affiché, à sa marge d'erreur près.</li>
+        <li>Le profil par âge des principaux candidats, dans les grandes tranches d'âge.</li>
+        <li>Les contrastes principaux, par exemple entre jeunes diplômés du supérieur et retraités peu diplômés.</li>
+      </ul></div>
+      <div><h3><span class="fiab f2">À lire avec prudence</span></h3><ul>
+        <li>Le profil par diplôme, publié par un seul institut.</li>
+        <li>Les scores précis d'une zone, à considérer comme des ordres de grandeur, à 2 ou 3&nbsp;points près.</li>
+        <li>L'abstention par diplôme, ainsi que son niveau en 2027.</li>
+        <li>Les taches de la pyramide lorsque le partage est inférieur à 1, car elles accentuent les bastions.</li>
+      </ul></div>
+      <div><h3><span class="fiab f3">Fragile</span></h3><ul>
+        <li>Les candidats recueillant moins de 5&nbsp;% des suffrages, en particulier dans les zones de faible effectif.</li>
+        <li>Les cases fines : un âge précis, les très jeunes et les très âgés diplômés du supérieur.</li>
+        <li>L'emplacement précis d'une tache, qui résulte d'un tirage aléatoire.</li>
+        <li>Les pyramides par candidat à forte concentration, qui grossissent les bastions et ne constituent pas une mesure.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <h2>1. Les estimations du modèle</h2>
+
+  <h3>Données mesurées et données reconstituées</h3>
+  <div class="defile"><table class="fiab-tab">
+    <thead><tr><th>Information</th><th>Fiabilité</th><th>Origine et principale limite</th></tr></thead>
+    <tbody>
+      <tr><td>Inscrits par âge × diplôme</td><td><span class="fiab f1">Solide</span></td><td>Recensement de l'INSEE et répertoire électoral unique. Le taux d'inscription est supposé identique quel que soit le diplôme ; la partie gauche de la pyramide, celle des moins diplômés, est donc probablement un peu surestimée.</td></tr>
+      <tr><td>Score national</td><td><span class="fiab f1">Solide</span></td><td>Repris du sondage affiché. Sa marge d'erreur, de 2 à 3&nbsp;points pour un candidat important, n'est pas représentée : la pyramide décrit la répartition d'un score donné.</td></tr>
+      <tr><td>Vote par tranche d'âge</td><td><span class="fiab f1">Assez solide</span></td><td>Moyenne des tableaux par âge de <span class="js-n-sondages">plusieurs sondages</span>. L'estimation est solide pour les principaux candidats, moins pour les autres.</td></tr>
+      <tr><td>Vote par diplôme</td><td><span class="fiab f2">Moyen</span></td><td>Un seul institut publie des résultats par diplôme (Cluster17). Ils sont complétés par le modèle, fondé sur le vote par profession du Cevipof et sur l'effet du diplôme mesuré en 2022.</td></tr>
+      <tr><td>Vote d'une case âge × diplôme</td><td><span class="fiab f2">Reconstitué</span></td><td>Aucun sondage ne le publie. Il est déduit des tableaux par âge et par diplôme, en supposant que l'effet du diplôme est le même à tout âge.</td></tr>
+      <tr><td>Abstention par âge</td><td><span class="fiab f1">Assez solide</span></td><td>INSEE, vote effectif relevé sur les listes d'émargement en 2022. Le profil retenu est celui de 2022, et non celui de 2027.</td></tr>
+      <tr><td>Abstention par diplôme</td><td><span class="fiab f2">Moyen</span></td><td>INSEE. L'écart entre diplômes n'est publié que pour l'abstention systématique, et dans trois grandes tranches d'âge seulement.</td></tr>
+      <tr><td>Petits candidats</td><td><span class="fiab f3">Fragile</span></td><td>Quelques dizaines de répondants par tranche d'âge dans chaque sondage. Leurs profils varient sensiblement d'un sondage à l'autre et selon les réglages.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="carte">Fiabilité zone par zone</h3>
+  <p>Le tableau suivant donne, pour chaque zone (tranche d'âge × diplôme), le score du candidat parmi les suffrages exprimés et son intervalle à 90&nbsp;%. Cet intervalle est obtenu en recalculant le modèle à partir de 100 tirages aléatoires des tableaux publiés par les instituts, selon la taille de leurs échantillons ; il mesure donc l'incertitude due à ces échantillons. La couleur indique la largeur de l'intervalle rapportée au score, car un intervalle de 2&nbsp;points n'a pas la même portée pour un score de 40&nbsp;% que pour un score de 4&nbsp;%.</p>
+  <div class="ctl-ligne">
+    <div class="ctl"><label for="f-hyp">Hypothèse de candidatures</label><select id="f-hyp"></select></div>
+    <div class="ctl"><label for="f-cand">Candidat</label><select id="f-cand"></select></div>
+  </div>
+  <div class="legende-f"><span><i style="background:color-mix(in srgb,#2fa35a 40%,transparent)"></i>Intervalle étroit (moins de 15&nbsp;% du score)</span><span><i style="background:color-mix(in srgb,#eda100 45%,transparent)"></i>Intermédiaire (15 à 35&nbsp;%)</span><span><i style="background:color-mix(in srgb,#e34948 45%,transparent)"></i>Large (plus de 35&nbsp;%)</span></div>
+  <div class="defile"><table class="carte-f" id="carte-f"></table></div>
+  <p class="g-note" id="carte-note"></p>
+
+  <h3>Fiabilité par candidat</h3>
+  <p>Le tableau donne la largeur médiane de l'intervalle sur les 36 zones de l'hypothèse choisie, en points et rapportée au score. Plus cette largeur est élevée relativement au score, moins le profil du candidat est assuré.</p>
+  <div class="defile"><table class="tab-f" id="tab-cands"></table></div>
+
+  <h3>Sources d'erreur non couvertes par l'intervalle</h3>
+  <p>L'intervalle ne rend compte que de l'aléa d'échantillonnage des tableaux publiés. Quatre autres sources d'erreur s'y ajoutent.</p>
+  <ul>
+    <li>La marge d'erreur du score national du sondage affiché, de l'ordre de 2 à 3&nbsp;points pour un candidat important et de 1&nbsp;point pour un petit candidat.</li>
+    <li>Les paramètres fixés sans source. Divisés ou multipliés par 3, ils modifient les profils des petits candidats de 10 à 25&nbsp;% (tableau ci-dessous).</li>
+    <li>Les hypothèses du modèle : participation de 2022 appliquée à 2027, effet du diplôme mesuré en 2022, effet du diplôme supposé identique à tout âge.</li>
+    <li>L'écart entre intentions et votes. À plusieurs mois du scrutin, les intentions de vote évoluent, et la participation davantage encore.</li>
+  </ul>
+  <div class="defile"><table class="tab-f" id="tab-sensibilite"></table></div>
+  <p class="g-note">L'indice rapporte le score dans le groupe au score d'ensemble ; un indice de 1,22 correspond à une surreprésentation de 22&nbsp;%. La valeur retenue figure en gras. Le détail se trouve dans la page Méthodes, section <a href="methodes.html#reglages">Paramètres fixés sans source</a>.</p>
+  <p id="abst-test"></p>
+
+  <h3>Recommandations de lecture</h3>
+  <ul>
+    <li>Les grandes zones sont plus fiables que les petites : les bacheliers de 50 à 64 ans sont mieux estimés que les diplômés bac+5 de 90 ans.</li>
+    <li>Les écarts entre groupes sont plus fiables que les niveaux. Que Marine Le Pen obtienne un score nettement plus élevé chez les moins diplômés est établi ; un score de 38,4&nbsp;% ne l'est pas à la décimale près.</li>
+    <li>Les estimations concernant les principaux candidats sont plus fiables que celles des petits candidats.</li>
+    <li>Les chiffres de la sélection, calculés à partir du modèle, sont plus fiables que le dessin, qui introduit ses propres effets (partie 2).</li>
+    <li>Ces résultats ne permettent aucune conclusion individuelle : qu'un groupe vote à 40&nbsp;% pour un candidat ne dit rien du vote d'une personne de ce groupe.</li>
+  </ul>
+
+  <h2>2. La représentation graphique</h2>
+
+  <h3>La pyramide en taches</h3>
+  <div class="defile"><table class="fiab-tab">
+    <thead><tr><th>Élément représenté</th><th>Fiabilité</th><th>Justification</th></tr></thead>
+    <tbody>
+      <tr><td>Surface totale de chaque couleur</td><td><span class="fiab f1">Exacte</span></td><td>Calée sur les voix à 0,03&nbsp;point près, quels que soient les réglages, avec ou sans liseré.</td></tr>
+      <tr><td>Composition d'une zone</td><td><span class="fiab f2">Selon le partage</span></td><td>Avec un partage égal à 1, chaque zone a la composition du modèle. En dessous, le candidat en tête de chaque zone y occupe une surface plus grande que sa part (voir le calcul ci-dessous), et le regroupement accentue encore cet effet.</td></tr>
+      <tr><td>Emplacement d'une tache</td><td><span class="fiab f3">Aléatoire</span></td><td>Les taches résultent d'un tirage aléatoire, que le bouton « Nouveau tirage » renouvelle. Une tache isolée n'a pas de signification ; seules les grandes masses de couleur en ont une.</td></tr>
+      <tr><td>Largeur de la pyramide à un âge donné</td><td><span class="fiab f1">Fidèle</span></td><td>Elle correspond au nombre d'inscrits, lissé sur un ou deux ans pour le dessin. Chaque pixel représente le même nombre d'inscrits, à 6&nbsp;% près en moyenne, davantage avant 21 ans.</td></tr>
+      <tr><td>Chiffres de la sélection</td><td><span class="fiab f1">Modèle</span></td><td>Ils sont calculés à partir du modèle et non des pixels, et ne dépendent donc ni du tirage ni des réglages du dessin.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Accentuation due au partage des taches. Le curseur ci-dessous permet de mesurer, pour l'hypothèse choisie plus haut et sans regroupement, la part de la surface des zones qui porte une autre couleur que celle du modèle.</p>
+  <div class="ctl-ligne">
+    <div class="ctl"><div class="row"><label for="f-t">Partage des taches</label><output id="f-t-o" class="valeur-curseur"></output></div><input type="range" id="f-t" min="0.1" max="1" step="0.05" value="0.7"><div class="ends"><span>Candidat en tête seul</span><span>Proportionnel aux scores</span></div></div>
+  </div>
+  <p id="f-t-res"></p>
+  <div class="defile"><table class="tab-f" id="tab-t"></table></div>
+
+  <h3>Les pyramides de la page « Électorat par candidat »</h3>
+  <p>Chaque pyramide reçoit une quantité de couleur proportionnelle aux voix du candidat. Le réglage de concentration détermine sa répartition : à 1, l'épaisseur de la couche dans une case est égale à la part du candidat ; au-delà, la couleur est placée en priorité dans les cases où il obtient ses meilleurs scores. Comme le partage des taches, ce réglage accentue les bastions. Le tableau suivant indique la part de la couleur placée ailleurs que dans les zones âge × diplôme où se trouvent effectivement ses électeurs.</p>
+  <div class="defile"><table class="tab-f" id="tab-gamma"></table></div>
+  <ul>
+    <li>Avec un renforcement supérieur à 1, la quantité de couleur excède les voix. La pyramide indique alors la présence de l'électorat, et non plus son volume.</li>
+    <li>Le lissage sur l'âge, sur trois ans, atténue les discontinuités artificielles entre les tranches d'âge des sondages, mais aussi les ruptures réelles.</li>
+    <li>Les couleurs sont interpolées d'un couloir de diplôme à l'autre pour le dessin. Un dégradé à l'intérieur d'un couloir n'a donc pas de signification.</li>
+    <li>Les candidats recueillant moins de 3,5&nbsp;% des suffrages exprimés, ainsi qu'Eric Zemmour et Nicolas Dupont-Aignan, sont regroupés par camp : leurs effectifs de répondants sont trop faibles pour que leur profil soit interprétable isolément.</li>
+  </ul>
+</article>
+<script src="registre.js"></script>
+<script src="common.js"></script>
+<script src="limites.js"></script>
+</body>
+</html>
