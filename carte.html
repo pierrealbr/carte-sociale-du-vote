@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carte sociale du vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css?v=9be120b">
+<script src="theme.js?v=9be120b"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="onglets" aria-label="Pages du site"><a href="index.html">Présentation</a><a href="carte.html" aria-current="page">Carte</a><a href="electorats.html">Électorat par candidat</a><a href="methodes.html">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
+    <h1>Carte sociale du vote</h1>
+    <p class="sub">Les 47,8 millions d'inscrits répartis par âge et par diplôme, chaque électorat occupant une surface proportionnelle à ses voix ; l'abstention est représentée de la même façon. <a href="index.html">Présentation de l'outil et mode d'emploi</a>.</p>
+  </header>
+
+  <section class="stage" aria-label="Carte">
+    <div class="controls deux">
+      <div class="ctl">
+        <div class="row"><label for="temp">Partage des taches</label><output id="temp_o"></output></div>
+        <input type="range" id="temp" min="0.05" max="1" step="0.05" value="0.45">
+        <div class="ends"><span>Candidat en tête seul</span><span>Proportionnel aux scores</span></div>
+        <div class="loupe" id="contraste" title="Part moyenne de la surface de chaque zone (tranche d'âge × diplôme) dessinée d'une autre couleur que celle du modèle. En dessous de 1, le réglage accentue le candidat en tête de chaque zone, si bien que le dessin grossit les bastions. Le total de chaque candidat reste exact, et les chiffres de la sélection ne dépendent pas de ce réglage. Le regroupement (gravité) accroît encore l'écart, d'où le signe ≥. Détail dans la page Méthodes, étape 6.">
+          <span class="loupe-nom">Effet loupe <small>surface déplacée</small></span><span class="loupe-barre"><i></i></span><span class="loupe-val"></span>
+        </div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label for="grain">Taille des taches</label><output id="grain_o"></output></div>
+        <input type="range" id="grain" min="2" max="14" step="1" value="5">
+        <div class="ends"><span>Fines</span><span>Grosses</span></div>
+      </div>
+    </div>
+
+    <details class="reglages participation" id="participation"></details>
+
+    <details class="reglages">
+      <summary>Plus de réglages des taches</summary>
+      <div class="controls">
+        <div class="ctl">
+          <div class="row"><label for="grav">Regroupement (gravité)</label><output id="grav_o"></output></div>
+          <input type="range" id="grav" min="0" max="4" step="0.25" value="0">
+          <div class="ends"><span>Aucun</span><span>Maximal</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="portee">Portée de la gravité</label><output id="portee_o"></output></div>
+          <input type="range" id="portee" min="4" max="40" step="2" value="10">
+          <div class="ends"><span>Voisins proches</span><span>Loin</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="etir">Forme des taches</label><output id="etir_o"></output></div>
+          <input type="range" id="etir" min="1" max="6" step="0.5" value="1">
+          <div class="ends"><span>Rondes</span><span>Allongées (le long des âges)</span></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar">
+      <label class="opt" for="style">Style</label>
+      <select id="style" class="style-sel" aria-label="Préréglage du style des taches"></select>
+      <label class="opt"><input type="checkbox" id="dlines" checked> Lignes de diplôme</label>
+      <button type="button" class="btn" id="reseed">Nouveau tirage</button>
+      <label class="opt zoom" for="zoom">Zoom <input type="range" id="zoom" min="55" max="100" step="5" value="85"> <output id="zoom_o">85 %</output></label>
+      <span class="spacer"></span>
+      <span class="status" id="status" aria-live="polite"></span>
+    </div>
+
+    <div class="toolbar">
+      <span class="tag inline">Sélection</span>
+      <span class="spacer"></span>
+      <label class="opt"><input type="checkbox" id="toutsel"> Tout sélectionner</label>
+      <label class="opt"><input type="checkbox" id="add"> Ajouter à la sélection</label>
+      <button type="button" class="btn" id="undo">Annuler</button>
+      <button type="button" class="btn" id="clear">Effacer</button>
+    </div>
+
+    <div class="mapbox">
+      <div class="gens" id="gens" role="group" aria-label="Générations"></div>
+      <div class="yax" id="yax" aria-hidden="true"></div>
+      <div class="map" id="map">
+        <canvas id="tiles" role="img" aria-label="Pyramide des inscrits par âge et diplôme, en taches colorées par candidat"></canvas>
+        <canvas id="over" aria-hidden="true"></canvas>
+        <canvas id="draw" aria-label="Zone de dessin du lasso"></canvas>
+        <div class="side-l">Bac ou moins</div>
+        <div class="side-r">Supérieur</div>
+      </div>
+      <div></div><div></div>
+      <div class="xax" id="xax" aria-hidden="true"></div>
+    </div>
+    <div class="legende">
+      <div class="chips" id="chips" role="group" aria-label="Légende : candidats affichés (cliquer pour masquer)"></div>
+      <div class="links"><span class="hint-l">Cliquez sur un candidat pour le masquer.</span><button type="button" class="linkbtn" id="all">Tout afficher</button><button type="button" class="linkbtn" id="none">Tout masquer</button></div>
+      <div class="incert-ctl"><label for="incert">Incertitude du placement</label>
+        <select id="incert" class="style-sel" aria-label="Hachurer les zones où la place des électeurs d'un candidat est incertaine"><option value="">Ne pas afficher</option></select></div>
+      <p class="incert-leg" id="incert-leg" hidden></p>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div>
+      <div class="tag">Sondage affiché</div>
+      <div class="ctl ctl-hyp">
+        <label for="hyp">Hypothèse de candidatures</label>
+        <select id="hyp"></select>
+      </div>
+      <div id="sondage" class="sondage"></div>
+    </div>
+    <div id="bloc-sel">
+      <div class="tag" id="seltitle">Sélection</div>
+      <div id="sel"></div>
+    </div>
+    <p class="foot">Sources et détail des calculs : <a href="methodes.html">page Méthodes</a>.</p>
+  </aside>
+</div>
+<script src="registre.js?v=9be120b"></script>
+<script src="taches.js?v=9be120b"></script>
+<script src="common.js?v=9be120b"></script>
+<script src="app.js?v=9be120b"></script>
+</body>
+</html>

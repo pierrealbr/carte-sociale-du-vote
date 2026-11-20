@@ -295,3 +295,23 @@ html.vue header,html.vue .controls,html.vue .stage>details,html.vue .toolbar,htm
 html.vue .gens{visibility:hidden;overflow:hidden}
 html.vue .stage{border:0;padding:4px;background:transparent}
 html.vue .mapbox{grid-template-columns:0 30px minmax(0,1fr)}
+
+/* page Présentation */
+.presentation .ouvrir{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 1.6em}
+.presentation .ouvrir.bas{margin-top:2em}
+.presentation .ouvrir .btn{text-decoration:none;font-size:.95rem;padding:9px 16px}
+.presentation .btn-fort{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.presentation .btn-fort:hover{opacity:.88;border-color:var(--fg)}
+.presentation .schema{margin:.4em 0 1em;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.presentation .schema svg{display:block;width:100%;max-width:520px;height:auto;margin:0 auto}
+.schema .s-forme{fill:var(--chip);stroke:var(--fg);stroke-width:1.5;stroke-dasharray:5 4}
+.schema .s-axe{stroke:var(--fg);stroke-width:1.5}
+.schema .s-dip{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 4}
+.schema .s-fl{stroke:var(--accent);stroke-width:1.5}
+.schema .s-pt{fill:var(--accent)}
+.schema .s-t{fill:var(--muted);font:12px var(--f-body)}
+.schema .s-fond{fill:var(--fg);paint-order:stroke;stroke:var(--chip);stroke-width:4px}
+.presentation .etapes-usage{padding-left:1.4em}
+.presentation .etapes-usage li{margin:.7em 0}
+.sub a{color:inherit;text-underline-offset:2px}
+.schema .s-gras{fill:var(--fg);font-weight:600}
