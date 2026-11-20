@@ -262,6 +262,7 @@ body>nav.onglets{max-width:1360px;margin:0 auto 14px}
 
 .reglages.participation .aide{font-size:.8rem;color:var(--muted);line-height:1.5;margin:.4em 0 .6em}
 .reglages.participation summary b{color:var(--fg);font-weight:600}
+.ep-participation{margin:0 0 14px}
 .part-graphes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 18px;margin:.6em 0}
 .part-graphes figure{margin:0}
 .part-graphes figcaption{font-size:.82rem;font-weight:600}

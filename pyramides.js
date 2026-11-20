@@ -9,8 +9,12 @@ const A_GAUCHE = new Set(BLOCS[0][1]);
 // toujours rangés dans « Petits candidats de droite », même au-dessus du seuil (Zemmour fait 3,5 à 4,5 %) : candidats.json
 const TOUJOURS_PETITS = new Set(REGISTRE.candidats.filter(c => c.toujours_petit).map(c => c.nom));
 
+// participation réglable, comme sur la Carte (ajusterParticipation, common.js) : écarts au sondage, en points
+const PART = { global: 0, jeunes: 0, ages: 0, peu: 0, sup: 0 };
 function chargerHypothese(nomHyp) {
-  const h = D.hypotheses[nomHyp], K = h.candidats.length;
+  const h0 = D.hypotheses[nomHyp], adj = ajusterParticipation(h0, PART);
+  if ($("part_resume")) afficherParticipation(adj.participation, PART);
+  const h = { candidats: h0.candidats, parts: adj.parts }, K = h.candidats.length;
   const SH = h.candidats.map((_, k) => { const a = new Float32Array(NA * ND); for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) a[i * ND + d] = Math.max(1e-6, h.parts[k][i][d]); return a; });
   const TOT = new Float64Array(K);
   for (let k = 0; k < K; k++) for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) TOT[k] += h.parts[k][i][d] * D.inscrits[i][d];

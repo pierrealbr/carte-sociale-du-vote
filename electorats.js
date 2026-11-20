@@ -40,6 +40,8 @@ function peinture() {
 chargerJSON("data.json").then(data => {
   D = data; lisser(); D.total = D.inscrits.flat().reduce((a, b) => a + b, 0); NA = D.ages.length; ND = D.diplomes.length; BND = bornes(D.inscritsLisses);
   const sel = $("hyp"); remplirHypotheses(sel);
+  // participation : mêmes réglages que sur la Carte (common.js) ; on redessine quand le curseur est relâché
+  brancherParticipation(PART, () => chargerHypothese(sel.value), peinture);
   const note = () => { const v = D.hypotheses[sel.value], ouverte = !!$("sondage").querySelector("details[open]");
     $("sondage").innerHTML = `<b>${v.groupe}</b><details class="notice"${ouverte ? " open" : ""}><summary>Notice du sondage</summary><p>${v.note}</p></details>`; };
   chargerHypothese(sel.value); note();
@@ -47,8 +49,9 @@ chargerJSON("data.json").then(data => {
   if (MEM) {
     for (const id of ["conc", "boost"]) if (MEM[id] != null) $(id).value = MEM[id];
     if (Array.isArray(MEM.caches)) { caches.clear(); MEM.caches.forEach(c => caches.add(c)); }
+    if (MEM.part) { for (const g in PART) if (typeof MEM.part[g] === "number") { PART[g] = MEM.part[g]; $(`part_${g}`).value = MEM.part[g]; } chargerHypothese(sel.value); }
   }
-  garderEtat("electorats", () => ({ conc: $("conc").value, boost: $("boost").value, caches: [...caches] }));
+  garderEtat("electorats", () => ({ conc: $("conc").value, boost: $("boost").value, caches: [...caches], part: PART }));
   sel.addEventListener("change", () => { chargerHypothese(sel.value); note(); peinture(); });
   const concTxt = () => $("conc_o").textContent = $("conc").value;
   concTxt(); $("conc").addEventListener("input", concTxt); $("conc").addEventListener("change", peinture);

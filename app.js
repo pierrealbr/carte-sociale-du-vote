@@ -62,7 +62,7 @@ function chargerHypothese(nomHyp) {
   const h0 = D.hypotheses[nomHyp];
   const adj = ajusterParticipation(h0, state.part);   // participation réglée (common.js)
   const h = { candidats: h0.candidats, parts: adj.parts }, K = h.candidats.length;
-  afficherParticipation(adj.participation);
+  afficherParticipation(adj.participation, state.part);
   const SH = h.candidats.map((_, k) => { const a = new Float32Array(NA * ND); for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) a[i * ND + d] = Math.max(1e-6, h.parts[k][i][d]); return a; });
   const LOGSH = SH.map(a => a.map(v => Math.log(v)));
   const TOT = new Float64Array(K);                   // voix (en inscrits) par candidat
@@ -83,47 +83,6 @@ function majContraste() {
   if ($("incert").value.startsWith("*") && LAB) superposer();     // la précision de ce qu'on voit dépend du partage
   // court, pour tenir sur une ligne sous le curseur ; l'infobulle explique. Avec la gravité, l'écart est plus grand.
   $("contraste").textContent = r.deplace < 5e-4 ? "Loupe : aucune" : `Loupe : ${state.grav > 0 ? "≥ " : ""}${fmtP(r.deplace)} déplacé`;
-}
-
-function afficherParticipation(r) {
-  const f = v => (v * 100).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " %";
-  const modifie = Object.values(state.part).some(v => v);
-  $("part_resume").textContent = modifie ? `${f(r.nouvelle)} (sondage : ${f(r.base)})` : f(r.base);
-  graphesParticipation(r);
-  // valeur réelle du groupe : elle bouge aussi quand un autre curseur touche une partie de ses membres
-  for (const g of ["jeunes", "ages", "peu", "sup"]) $(`part_${g}_o`).textContent = Math.abs(r[g][1] - r[g][0]) > 5e-4 ? `${f(r[g][0])} → ${f(r[g][1])}` : f(r[g][0]);
-  $("part_global_o").textContent = state.part.global ? (state.part.global > 0 ? "+" : "−") + Math.abs(state.part.global).toLocaleString("fr-FR") + (Math.abs(state.part.global) >= 2 ? " pts" : " pt") : "aucun";
-}
-
-// ---------- participation : graphiques descriptifs (sondage en pointillé / creux, réglage en couleur)
-const SVGNS = "http://www.w3.org/2000/svg";
-function svgEl(tag, at, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in at) e.setAttribute(k, at[k]); parent && parent.appendChild(e); return e; }
-function graphesParticipation(r) {
-  for (const parAge of [true, false]) {
-    const box = $(parAge ? "part_g_age" : "part_g_dip"), W = 360, H = 170, m = { l: 34, r: 10, t: 10, b: 22 };
-    const y0 = parAge ? .2 : .4, y1 = 1, modifie = parAge ? r.ageNouv.some((v, i) => Math.abs(v - r.age[i]) > 1e-4) : r.dipNouv.some((v, d) => Math.abs(v - r.dip[d]) > 1e-4);
-    const X = parAge ? (a => m.l + (a - 18) / 82 * (W - m.l - m.r)) : (d => m.l + (d + .5) / 6 * (W - m.l - m.r));
-    const Y = v => m.t + (y1 - v) / (y1 - y0) * (H - m.t - m.b);
-    box.innerHTML = "";
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "part-svg", role: "img", "aria-label": parAge ? "Participation selon l'âge" : "Participation selon le diplôme" }, box);
-    for (let v = y0; v <= y1 + 1e-9; v += .2) {
-      svgEl("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "part-grille" }, svg);
-      svgEl("text", { x: m.l - 4, y: Y(v) + 3, class: "part-axe", "text-anchor": "end" }, svg).textContent = Math.round(v * 100) + " %";
-    }
-    if (parAge) {
-      for (const a of [20, 40, 60, 80, 100]) svgEl("text", { x: X(a), y: H - 5, class: "part-axe", "text-anchor": "middle" }, svg).textContent = a + " ans";
-      const chemin = vs => vs.map((v, i) => `${i ? "L" : "M"}${X(D.ages[i]).toFixed(1)},${Y(v).toFixed(1)}`).join("");
-      if (modifie) svgEl("path", { d: chemin(r.age), class: "part-base" }, svg);
-      svgEl("path", { d: chemin(r.ageNouv), class: "part-nouv" }, svg);
-    } else {
-      ["Sans dipl.", "CAP-BEP", "Bac", "Bac+2", "Bac+3/4", "Bac+5"].forEach((l, d) => {
-        svgEl("text", { x: X(d), y: H - 5, class: "part-axe", "text-anchor": "middle" }, svg).textContent = l;
-        if (modifie) { svgEl("line", { x1: X(d), x2: X(d), y1: Y(r.dip[d]), y2: Y(r.dipNouv[d]), class: "part-tige" }, svg); svgEl("circle", { cx: X(d), cy: Y(r.dip[d]), r: 3.5, class: "part-pt-base" }, svg); }
-        svgEl("circle", { cx: X(d), cy: Y(r.dipNouv[d]), r: 4.5, class: "part-pt" }, svg);
-        svgEl("text", { x: X(d), y: Y(r.dipNouv[d]) - 8, class: "part-val", "text-anchor": "middle" }, svg).textContent = Math.round(r.dipNouv[d] * 100);
-      });
-    }
-  }
 }
 
 // ---------- bruit lissé par candidat -> loi de Gumbel
@@ -644,6 +603,8 @@ const tf = v => (+v).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximum
 // fourchettes à 90 % par zone (scripts/incertitude.py) : seulement si elles correspondent aux données affichées
 let FOURCH = null;
 chargerJSON("data.json").then(data => {
+  // bloc « Participation » (common.js) : créé avant tout le reste, chargerHypothese y écrit
+  brancherParticipation(state.part, () => chargerHypothese(state.hyp), () => lancer(false));   // common.js
   chargerJSON("fourchettes.json").then(f => { if (f.empreinte === data.empreinte) { FOURCH = f; remplirIncertitude(); if (shapes.length) calculer(); if (LAB) superposer(); } }, () => {});
   D = data; lisser(); D.total = D.inscrits.flat().reduce((a, b) => a + b, 0);
   if (!VUE) try { const z = localStorage.getItem("zoom"); if (z) $("zoom").value = z; } catch (e) {}
@@ -683,14 +644,6 @@ chargerJSON("data.json").then(data => {
   curseur("portee", "portee", v => v + " px", false);
   curseur("etir", "etir", v => v === 1 ? "rondes" : "× " + tf(v), true);
   // participation : chaque curseur recalcule les parts de l'hypothèse (même tirage de taches)
-  for (const g of ["global", "jeunes", "ages", "peu", "sup"]) {
-    $(`part_${g}`).addEventListener("input", e => { state.part[g] = +e.target.value; chargerHypothese(state.hyp); });
-    $(`part_${g}`).addEventListener("change", () => lancer(false));
-  }
-  $("part_reset").addEventListener("click", () => {
-    for (const g of ["global", "jeunes", "ages", "peu", "sup"]) { state.part[g] = 0; $(`part_${g}`).value = 0; }
-    chargerHypothese(state.hyp); lancer(false);
-  });
   // préréglages de style : chacun fixe les curseurs des taches ; toucher un curseur repasse en « Personnalisé »
   const STYLES = {
     "Lisible, proche des données": { temp: .7, grain: 3, grav: 1.25, portee: 6, etir: 1.5, liseres: false },

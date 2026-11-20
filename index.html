@@ -33,42 +33,7 @@
       </div>
     </div>
 
-    <details class="reglages participation">
-      <summary>Participation : <b id="part_resume"></b> · la faire varier</summary>
-      <p class="aide">La participation est l'hypothèse la plus incertaine du modèle. Par défaut, on retient celle du sondage, répartie selon l'âge et le diplôme comme au premier tour de 2022. D'une élection présidentielle à la suivante, la participation des 18-29 ans et des 65 ans et plus s'est écartée de 1 à 4&nbsp;points de ce que laissait prévoir l'élection précédente (INSEE, 2002-2022). Les réglages ci-dessous modifient le nombre de votants de chaque case sans changer leur répartition entre candidats ; les scores nationaux varient en conséquence.</p>
-      <div class="controls">
-        <div class="ctl">
-          <div class="row"><label for="part_global">Tout le monde</label><output id="part_global_o"></output></div>
-          <input type="range" id="part_global" min="-10" max="10" step="0.5" value="0">
-          <div class="ends"><span>−10 pts</span><span>+10 pts</span></div>
-        </div>
-        <div class="ctl">
-          <div class="row"><label for="part_jeunes">18-29 ans</label><output id="part_jeunes_o"></output></div>
-          <input type="range" id="part_jeunes" min="-5" max="5" step="0.5" value="0">
-          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
-        </div>
-        <div class="ctl">
-          <div class="row"><label for="part_ages">65 ans et plus</label><output id="part_ages_o"></output></div>
-          <input type="range" id="part_ages" min="-5" max="5" step="0.5" value="0">
-          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
-        </div>
-        <div class="ctl">
-          <div class="row"><label for="part_peu">Sans diplôme et CAP-BEP</label><output id="part_peu_o"></output></div>
-          <input type="range" id="part_peu" min="-5" max="5" step="0.5" value="0">
-          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
-        </div>
-        <div class="ctl">
-          <div class="row"><label for="part_sup">Diplômés du supérieur</label><output id="part_sup_o"></output></div>
-          <input type="range" id="part_sup" min="-5" max="5" step="0.5" value="0">
-          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
-        </div>
-      </div>
-      <div class="part-graphes">
-        <figure><figcaption>Participation selon l'âge <small>pointillé : sondage</small></figcaption><div id="part_g_age"></div></figure>
-        <figure><figcaption>Selon le diplôme <small>cercle creux : sondage</small></figcaption><div id="part_g_dip"></div></figure>
-      </div>
-      <button type="button" class="btn" id="part_reset">Revenir au sondage</button>
-    </details>
+    <details class="reglages participation" id="participation"></details>
 
     <details class="reglages">
       <summary>Plus de réglages des taches</summary>

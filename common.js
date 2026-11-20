@@ -185,6 +185,98 @@ function remplirHypotheses(sel) {
   sel.addEventListener("change", () => { try { localStorage.setItem("hyp", sel.value); } catch (e) {} });
 }
 
+// ---------- réglages de participation : même bloc sur la Carte et sur Électorat par candidat
+const GROUPES_CURSEURS = ["global", "jeunes", "ages", "peu", "sup"];
+const HTML_PARTICIPATION = `      <summary>Participation : <b id="part_resume"></b> · la faire varier</summary>
+      <p class="aide">La participation est l'hypothèse la plus incertaine du modèle. Par défaut, on retient celle du sondage, répartie selon l'âge et le diplôme comme au premier tour de 2022. D'une élection présidentielle à la suivante, la participation des 18-29 ans et des 65 ans et plus s'est écartée de 1 à 4&nbsp;points de ce que laissait prévoir l'élection précédente (INSEE, 2002-2022). Les réglages ci-dessous modifient le nombre de votants de chaque case sans changer leur répartition entre candidats ; les scores nationaux varient en conséquence.</p>
+      <div class="controls">
+        <div class="ctl">
+          <div class="row"><label for="part_global">Tout le monde</label><output id="part_global_o"></output></div>
+          <input type="range" id="part_global" min="-10" max="10" step="0.5" value="0">
+          <div class="ends"><span>−10 pts</span><span>+10 pts</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="part_jeunes">18-29 ans</label><output id="part_jeunes_o"></output></div>
+          <input type="range" id="part_jeunes" min="-5" max="5" step="0.5" value="0">
+          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="part_ages">65 ans et plus</label><output id="part_ages_o"></output></div>
+          <input type="range" id="part_ages" min="-5" max="5" step="0.5" value="0">
+          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="part_peu">Sans diplôme et CAP-BEP</label><output id="part_peu_o"></output></div>
+          <input type="range" id="part_peu" min="-5" max="5" step="0.5" value="0">
+          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="part_sup">Diplômés du supérieur</label><output id="part_sup_o"></output></div>
+          <input type="range" id="part_sup" min="-5" max="5" step="0.5" value="0">
+          <div class="ends"><span>−5 pts</span><span>+5 pts</span></div>
+        </div>
+      </div>
+      <div class="part-graphes">
+        <figure><figcaption>Participation selon l'âge <small>pointillé : sondage</small></figcaption><div id="part_g_age"></div></figure>
+        <figure><figcaption>Selon le diplôme <small>cercle creux : sondage</small></figcaption><div id="part_g_dip"></div></figure>
+      </div>
+      <button type="button" class="btn" id="part_reset">Revenir au sondage</button>`;
+// remplit le bloc #participation et branche ses curseurs. part : écarts en points (modifiés sur place) ;
+// pendant(), à chaque mouvement d'un curseur ; fin(), quand on le relâche (ou à la remise à zéro)
+function brancherParticipation(part, pendant, fin) {
+  $("participation").innerHTML = HTML_PARTICIPATION;
+  for (const g of GROUPES_CURSEURS) {
+    $(`part_${g}`).value = part[g] || 0;
+    $(`part_${g}`).addEventListener("input", e => { part[g] = +e.target.value; pendant(); });
+    $(`part_${g}`).addEventListener("change", fin);
+  }
+  $("part_reset").addEventListener("click", () => {
+    for (const g of GROUPES_CURSEURS) { part[g] = 0; $(`part_${g}`).value = 0; }
+    pendant(); fin();
+  });
+}
+function afficherParticipation(r, part) {
+  const f = v => (v * 100).toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " %";
+  const modifie = Object.values(part).some(v => v);
+  $("part_resume").textContent = modifie ? `${f(r.nouvelle)} (sondage : ${f(r.base)})` : f(r.base);
+  graphesParticipation(r);
+  // valeur réelle du groupe : elle bouge aussi quand un autre curseur touche une partie de ses membres
+  for (const g of ["jeunes", "ages", "peu", "sup"]) $(`part_${g}_o`).textContent = Math.abs(r[g][1] - r[g][0]) > 5e-4 ? `${f(r[g][0])} → ${f(r[g][1])}` : f(r[g][0]);
+  $("part_global_o").textContent = part.global ? (part.global > 0 ? "+" : "−") + Math.abs(part.global).toLocaleString("fr-FR") + (Math.abs(part.global) >= 2 ? " pts" : " pt") : "aucun";
+}
+
+// ---------- participation : graphiques descriptifs (sondage en pointillé / creux, réglage en couleur)
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, at, parent) { const e = document.createElementNS(SVGNS, tag); for (const k in at) e.setAttribute(k, at[k]); parent && parent.appendChild(e); return e; }
+function graphesParticipation(r) {
+  for (const parAge of [true, false]) {
+    const box = $(parAge ? "part_g_age" : "part_g_dip"), W = 360, H = 170, m = { l: 34, r: 10, t: 10, b: 22 };
+    const y0 = parAge ? .2 : .4, y1 = 1, modifie = parAge ? r.ageNouv.some((v, i) => Math.abs(v - r.age[i]) > 1e-4) : r.dipNouv.some((v, d) => Math.abs(v - r.dip[d]) > 1e-4);
+    const X = parAge ? (a => m.l + (a - 18) / 82 * (W - m.l - m.r)) : (d => m.l + (d + .5) / 6 * (W - m.l - m.r));
+    const Y = v => m.t + (y1 - v) / (y1 - y0) * (H - m.t - m.b);
+    box.innerHTML = "";
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "part-svg", role: "img", "aria-label": parAge ? "Participation selon l'âge" : "Participation selon le diplôme" }, box);
+    for (let v = y0; v <= y1 + 1e-9; v += .2) {
+      svgEl("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: "part-grille" }, svg);
+      svgEl("text", { x: m.l - 4, y: Y(v) + 3, class: "part-axe", "text-anchor": "end" }, svg).textContent = Math.round(v * 100) + " %";
+    }
+    if (parAge) {
+      for (const a of [20, 40, 60, 80, 100]) svgEl("text", { x: X(a), y: H - 5, class: "part-axe", "text-anchor": "middle" }, svg).textContent = a + " ans";
+      const chemin = vs => vs.map((v, i) => `${i ? "L" : "M"}${X(D.ages[i]).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+      if (modifie) svgEl("path", { d: chemin(r.age), class: "part-base" }, svg);
+      svgEl("path", { d: chemin(r.ageNouv), class: "part-nouv" }, svg);
+    } else {
+      ["Sans dipl.", "CAP-BEP", "Bac", "Bac+2", "Bac+3/4", "Bac+5"].forEach((l, d) => {
+        svgEl("text", { x: X(d), y: H - 5, class: "part-axe", "text-anchor": "middle" }, svg).textContent = l;
+        if (modifie) { svgEl("line", { x1: X(d), x2: X(d), y1: Y(r.dip[d]), y2: Y(r.dipNouv[d]), class: "part-tige" }, svg); svgEl("circle", { cx: X(d), cy: Y(r.dip[d]), r: 3.5, class: "part-pt-base" }, svg); }
+        svgEl("circle", { cx: X(d), cy: Y(r.dipNouv[d]), r: 4.5, class: "part-pt" }, svg);
+        svgEl("text", { x: X(d), y: Y(r.dipNouv[d]) - 8, class: "part-val", "text-anchor": "middle" }, svg).textContent = Math.round(r.dipNouv[d] * 100);
+      });
+    }
+  }
+}
+
+
 // ---------- participation réglable
 // Les parts de chaque case sont en % des inscrits ; l'abstention vaut 1 − p. On décale p sur l'échelle logit :
 //   logit p' = logit p + x_global + x_jeunes·[18-29 ans] + x_âgés·[65 ans et +] + x_peu·[sans diplôme, CAP-BEP]
