@@ -24,7 +24,7 @@ const REGISTRE = {
   },
   {
    "nom": "Fabien Roussel",
-   "couleur": "#ff6b4a",
+   "couleur": "#e8553a",
    "bloc": "Gauche",
    "electorat_2022": [
     "Roussel"
@@ -35,7 +35,7 @@ const REGISTRE = {
   },
   {
    "nom": "Marine Tondelier",
-   "couleur": "#2fa35a",
+   "couleur": "#c2569a",
    "bloc": "Gauche",
    "electorat_2022": [
     "Jadot"
@@ -83,7 +83,7 @@ const REGISTRE = {
   },
   {
    "nom": "Christine Lagarde",
-   "couleur": "#9b6ad0",
+   "couleur": "#e8c547",
    "bloc": "Centre et droite"
   },
   {
@@ -94,7 +94,7 @@ const REGISTRE = {
   },
   {
    "nom": "David Lisnard",
-   "couleur": "#3fb5b0",
+   "couleur": "#5b8fd6",
    "bloc": "Centre et droite"
   },
   {
@@ -110,7 +110,7 @@ const REGISTRE = {
   },
   {
    "nom": "Nicolas Dupont-Aignan",
-   "couleur": "#7db6ea",
+   "couleur": "#7b6bb3",
    "bloc": "Extrême droite",
    "electorat_2022": [
     "Dupont-Aignan"
@@ -128,7 +128,7 @@ const REGISTRE = {
   },
   {
    "nom": "Eric Zemmour",
-   "couleur": "#7a4a22",
+   "couleur": "#3a2a80",
    "bloc": "Extrême droite",
    "electorat_2022": [
     "Zemmour"
