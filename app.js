@@ -81,8 +81,12 @@ function majContraste() {
   if (!H_) return;
   const r = partageT(H_.SH, state.T, B_PARTAGE); B_PARTAGE = r.b; LOUPE = r;
   if ($("incert").value.startsWith("*") && LAB) superposer();     // la précision de ce qu'on voit dépend du partage
-  // court, pour tenir sur une ligne sous le curseur ; l'infobulle explique. Avec la gravité, l'écart est plus grand.
-  $("contraste").textContent = r.deplace < 5e-4 ? "Loupe : aucune" : `Loupe : ${state.grav > 0 ? "≥ " : ""}${fmtP(r.deplace)} déplacé`;
+  // jauge sous le curseur (échelle pleine à 30 %), couleur selon l'ampleur ; l'infobulle explique. Avec la gravité,
+  // l'écart est plus grand, d'où le signe ≥.
+  const d = r.deplace, el = $("contraste");
+  el.style.setProperty("--l", Math.min(100, d / .30 * 100) + "%");
+  el.style.setProperty("--lc", d < .05 ? "#3f9e6a" : d < .15 ? "#e0a020" : "#d94a3a");
+  el.querySelector(".loupe-val").textContent = d < 5e-4 ? "0 %" : `${state.grav > 0 ? "≥ " : ""}${fmtP(d)}`;
 }
 
 // ---------- bruit lissé par candidat -> loi de Gumbel

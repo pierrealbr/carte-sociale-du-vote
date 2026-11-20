@@ -7,14 +7,14 @@
 <title>Méthodes · Carte sociale du vote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=53dcf27">
-<script src="theme.js?v=53dcf27"></script>
+<link rel="stylesheet" href="style.css?v=de4f695">
+<script src="theme.js?v=de4f695"></script>
 </head>
 <body>
 <nav class="onglets" aria-label="Pages du site"><a href="index.html">Carte</a><a href="electorats.html">Électorat par candidat</a><a href="methodes.html" aria-current="page">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
 <article class="doc construction">
   <h1>Méthodes</h1>
-  <p class="chapo">Cette page décrit la construction de la pyramide, depuis les fichiers de l'INSEE et les notices des sondages jusqu'au dessin en taches. Pour chaque étape, elle présente les données utilisées, les calculs, les hypothèses retenues, leur fiabilité et les améliorations envisageables.</p>
+  <p class="chapo">Cette page décrit la construction de la pyramide, depuis les fichiers de l'INSEE et les notices des sondages jusqu'au dessin en taches. Pour chaque étape, elle présente les données utilisées, les calculs, les hypothèses retenues et leur fiabilité.</p>
 
   <section class="encadre">
     <h2>Objet</h2>
@@ -41,7 +41,7 @@
     <li><a href="#e5"><b>5</b> Calage sur le sondage affiché</a></li>
     <li><a href="#e6"><b>6</b> Représentation en taches</a></li>
     <li><a href="#electorats"><b>7</b> Électorat par candidat</a></li>
-    <li><a href="#bilan"><b>8</b> Bilan, limites et pistes</a></li>
+    <li><a href="#bilan"><b>8</b> Bilan et limites</a></li>
     <li><a href="#sources"><b>9</b> Sources</a></li>
   </ol>
 
@@ -80,13 +80,6 @@
       <li>La mortalité est supposée identique pour tous les niveaux de diplôme, à sexe égal. Les diplômés vivant plus longtemps, l'effet existe aux grands âges, mais il reste faible sur quatre ans.</li>
       <li>Les 1,7 million de Français établis à l'étranger, absents du recensement, ne sont pas pris en compte.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Utiliser un taux d'inscription par diplôme, si une source le mesure (enquêtes de l'INSEE sur la participation et l'inscription). Son application par âge et par diplôme corrigerait le principal biais de cette étape.</li>
-        <li>Différencier la mortalité selon le diplôme (tables d'espérance de vie par diplôme de l'INSEE). Le gain serait faible et ne concernerait que les grands âges.</li>
-        <li>Reprendre le recensement de 2023 dès sa publication, ce qui réduirait le vieillissement à trois ans.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
@@ -164,12 +157,6 @@
       <li>Le profil de 2022 est appliqué à 2027. Une mobilisation particulière en 2027, par exemple chez les jeunes, ne serait pas prise en compte, seul le niveau d'ensemble provenant du sondage.</li>
       <li>La participation retenue par le sondage est appliquée telle quelle. Les instituts n'en retiennent pas tous la même définition (« tout à fait certain », « 8 à 10 sur 10 », etc.), et, à cinq mois du scrutin, elle est partout inférieure à la participation finale probable.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Intégrer les informations propres à 2027, en corrigeant le profil de 2022 par les écarts de certitude d'aller voter que les sondages mesurent par âge et par diplôme (le Cevipof les publie, sur 13 000 personnes).</li>
-        <li>Obtenir la participation au premier tour croisée par âge détaillé et par diplôme, qui figure dans l'enquête de l'INSEE et est accessible aux chercheurs par le CASD.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
@@ -221,12 +208,6 @@
       <li>Le modèle est multiplicatif et ne comporte pas d'interaction : l'effet de l'âge est supposé identique à tous les niveaux de diplôme. Un jeune diplômé de bac+5 et un retraité de même diplôme ne diffèrent que par l'effet de l'âge. C'est cette hypothèse qui produit le croisement ; elle ne peut pas être vérifiée à partir des seules données publiées.</li>
       <li>L'effet du diplôme mesuré en 2022 est supposé stable jusqu'en 2027 et transposé à des candidats différents, Édouard Philippe n'étant pas Emmanuel Macron.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>La principale serait d'exploiter les données individuelles de l'Enquête électorale française (Cevipof, accessibles aux chercheurs par data.sciencespo). Elles permettent d'observer le croisement âge × diplôme × vote sur 13 000 personnes, ce qui remplacerait la modélisation de cette étape par une mesure et permettrait de tester l'interaction entre âge et diplôme.</li>
-        <li>À défaut, des tris croisés par âge et par diplôme pourraient être demandés à un institut : ils peuvent être calculés à partir de ses fichiers, même s'ils ne sont pas publiés.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
@@ -237,7 +218,7 @@
     <details class="detail">
     <summary>Explication détaillée</summary>
     <h3>Justification</h3>
-    <p>L'enquête du Cevipof date de septembre et ne comprend pas tous les candidats (David Lisnard et Agnès Lagarde en sont absents). D'autres instituts publient le vote par âge, et Cluster17 publie également le vote par diplôme. Leur moyenne évite de dépendre d'une seule enquête.</p>
+    <p>L'enquête du Cevipof date de septembre et ne comprend pas tous les candidats (David Lisnard et Christine Lagarde en sont absents). D'autres instituts publient le vote par âge, et Cluster17 publie également le vote par diplôme. Leur moyenne évite de dépendre d'une seule enquête.</p>
     <h3>Méthode</h3>
     <p>Pour chaque candidat, on calcule un indice par groupe (tranche d'âge ou niveau de diplôme) : son score moyen dans le groupe divisé par son score moyen d'ensemble, les deux moyennes étant pondérées sur l'ensemble des sondages et des hypothèses où il figure :</p>
     <p class="formule"><var>Ī<sub>k</sub></var>(<var>g</var>) = Σ <var>w</var> × score<sub><var>k</var></sub>(<var>g</var>) / Σ <var>w</var> × score<sub><var>k</var></sub>, &nbsp; <var>w</var> = min(<var>n</var>, 1 500) / nb d'hypothèses × exp(−½ (ancienneté / 45 j)²)</p>
@@ -247,10 +228,10 @@
       <li>La pondération par l'ancienneté réduit de 40&nbsp;% le poids d'un sondage réalisé 45 jours avant le plus récent.</li>
       <li>Les tranches propres à chaque institut sont ramenées à cinq tranches communes (18-24, 25-34, 35-49, 50-64, 65 ans et plus). Les tranches 65-74 et 75 ans et plus sont regroupées, et la tranche 18-34 compte pour 18-24 et pour 25-34, avec un demi-poids dans chacune.</li>
     </ul>
-    <p>Âge : sept sondages de cinq instituts. Leurs poids respectifs sont les suivants : Cluster17 (octobre) 24&nbsp;%, Elabe (novembre) 18&nbsp;%, Odoxa 18&nbsp;%, OpinionWay 12&nbsp;%, Cluster17 (novembre) 12&nbsp;%, Cevipof 9&nbsp;% (plus 2&nbsp;% au titre du profil d'appui de David Lisnard et d'Agnès Lagarde, voir plus bas), Elabe (août) 4&nbsp;%. Ces sondages concordent : l'indice de Jean-Luc Mélenchon atteint 2,4 chez les 18-24 ans, et celui de Marine Le Pen culmine à 1,19 chez les 50-64 ans.</p>
+    <p>Âge : sept sondages de cinq instituts. Leurs poids respectifs sont les suivants : Cluster17 (octobre) 24&nbsp;%, Elabe (novembre) 18&nbsp;%, Odoxa 18&nbsp;%, OpinionWay 12&nbsp;%, Cluster17 (novembre) 12&nbsp;%, Cevipof 9&nbsp;% (plus 2&nbsp;% au titre du profil d'appui de David Lisnard et d'Christine Lagarde, voir plus bas), Elabe (août) 4&nbsp;%. Ces sondages concordent : l'indice de Jean-Luc Mélenchon atteint 2,4 chez les 18-24 ans, et celui de Marine Le Pen culmine à 1,19 chez les 50-64 ans.</p>
     <figure class="graphe" id="g-ind-age"><figcaption><b>Indice par âge : score dans la tranche rapporté au score d'ensemble</b><span>moyenne pondérée des instituts, cinq principaux candidats</span></figcaption><div class="g-corps"></div><p class=g-note>Un indice supérieur à 1 signifie que le candidat obtient dans la tranche un score supérieur à sa moyenne.</p></figure>
-    <p>Diplôme : cinq groupes (moins que le baccalauréat, baccalauréat, bac+2, bac+3/4, bac+5). Seul Cluster17 publie des résultats par diplôme (deux vagues, représentant 56&nbsp;% du poids). Le modèle de l'étape 3 compte comme un sondage de 1 500 suffrages exprimés (44&nbsp;%, dont 6&nbsp;% au titre du profil d'appui de David Lisnard et d'Agnès Lagarde) et sert de point d'appui. L'indice de Marine Le Pen s'établit à 1,44 chez les non-bacheliers et à 0,49 chez les diplômés de bac+5.</p>
-    <p>Candidats absents de l'enquête du Cevipof. David Lisnard et Agnès Lagarde n'ont pas de profil dans le modèle. Sans point d'appui, le profil d'Agnès Lagarde reposait sur une seule hypothèse d'un seul sondage (<var>Ī</var> = 0,45 chez les non-bacheliers, 1,76 chez les diplômés de bac+5). Chacun reçoit donc comme point d'appui le profil du candidat dont il reprend le point de départ à l'étape 5 (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde), avec le poids du Cevipof pour l'âge et celui du modèle pour le diplôme. Les indices d'Agnès Lagarde passent ainsi à 0,73 et 1,36.</p>
+    <p>Diplôme : cinq groupes (moins que le baccalauréat, baccalauréat, bac+2, bac+3/4, bac+5). Seul Cluster17 publie des résultats par diplôme (deux vagues, représentant 56&nbsp;% du poids). Le modèle de l'étape 3 compte comme un sondage de 1 500 suffrages exprimés (44&nbsp;%, dont 6&nbsp;% au titre du profil d'appui de David Lisnard et d'Christine Lagarde) et sert de point d'appui. L'indice de Marine Le Pen s'établit à 1,44 chez les non-bacheliers et à 0,49 chez les diplômés de bac+5.</p>
+    <p>Candidats absents de l'enquête du Cevipof. David Lisnard et Christine Lagarde n'ont pas de profil dans le modèle. Sans point d'appui, le profil d'Christine Lagarde reposait sur une seule hypothèse d'un seul sondage (<var>Ī</var> = 0,45 chez les non-bacheliers, 1,76 chez les diplômés de bac+5). Chacun reçoit donc comme point d'appui le profil du candidat dont il reprend le point de départ à l'étape 5 (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Christine Lagarde), avec le poids du Cevipof pour l'âge et celui du modèle pour le diplôme. Les indices d'Christine Lagarde passent ainsi à 0,73 et 1,36.</p>
     <figure class="graphe" id="g-ind-dip"><figcaption><b>Indice par diplôme</b><span>moyenne du modèle et de Cluster17</span></figcaption><div class="g-corps"></div></figure>
     <h3>Contrôles</h3>
     <ul>
@@ -264,12 +245,6 @@
       <li>Chaque candidat a un profil unique, toutes hypothèses de candidatures confondues. Ce choix rend les profils stables, mais insensibles aux changements de l'offre électorale : lorsque Gabriel Attal se retire, l'électorat d'Édouard Philippe change de niveau, mais non de forme.</li>
       <li>Les instituts emploient des méthodes différentes (enquêtes en ligne ou non, redressements). La moyenne les traite comme interchangeables.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Intégrer les tableaux par diplôme d'autres instituts dès leur publication ; aucun autre que Cluster17 n'en publie à ce jour pour 2027.</li>
-        <li>Calculer des indices propres à chaque hypothèse lorsque la taille de l'échantillon le permet, afin d'observer les reports des électeurs d'un candidat qui se retire.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
@@ -284,7 +259,7 @@
     <h3>Méthode</h3>
     <p>a. Participation. Toutes les cases sont décalées d'une même constante sur l'échelle logit, de manière à retrouver la participation du sondage :</p>
     <p class="formule">logit <var>p</var>′(<var>a</var>, <var>d</var>) = logit <var>p</var>(<var>a</var>, <var>d</var>) + <var>c</var>′</p>
-    <p>b. Profil de départ. On retient le profil <var>S</var><sup>0</sup><sub><var>k</var></sub>(<var>a</var>, <var>d</var>) du candidat dans l'hypothèse du Cevipof la plus proche. Un candidat absent de cette enquête reprend celui d'un candidat proche : Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde.</p>
+    <p>b. Profil de départ. On retient le profil <var>S</var><sup>0</sup><sub><var>k</var></sub>(<var>a</var>, <var>d</var>) du candidat dans l'hypothèse du Cevipof la plus proche. Un candidat absent de cette enquête reprend celui d'un candidat proche : Bruno Retailleau pour David Lisnard, Édouard Philippe pour Christine Lagarde.</p>
     <p>c. Cibles. Trois cibles doivent être atteintes simultanément :</p>
     <ul>
       <li>le score national de chaque candidat, exactement ;</li>
@@ -305,15 +280,9 @@
     <ul>
       <li>Les scores du sondage sont repris tels quels, avec leur marge d'erreur, de l'ordre de ±3&nbsp;points pour Marine Le Pen sur 1 000 suffrages exprimés.</li>
       <li>Un seul sondage est représenté à la fois. Les écarts entre instituts (Marine Le Pen entre 30,5 et 37&nbsp;%) apparaissent en changeant d'hypothèse, mais non sur une même figure.</li>
-      <li>Les profils empruntés (David Lisnard, Agnès Lagarde) combinent les tableaux publiés par les instituts et le profil du candidat proche qui leur sert d'appui (étape 4).</li>
+      <li>Les profils empruntés (David Lisnard, Christine Lagarde) combinent les tableaux publiés par les instituts et le profil du candidat proche qui leur sert d'appui (étape 4).</li>
       <li>Le taux de votes blancs et nuls est le même dans toutes les cases. Aucune source ne le donne par âge et par diplôme, et il varie d'une élection à l'autre. Une erreur sur ce taux modifie légèrement les voix de tous les candidats, mais non leurs scores parmi les exprimés.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Proposer une hypothèse fondée sur la moyenne des sondages, pondérée par leur taille et leur ancienneté, comme pour les profils.</li>
-        <li>Représenter l'incertitude du score national, en refaisant le calcul avec des scores tirés dans leur marge d'erreur (bootstrap) et en montrant les zones de la pyramide qui changent de couleur.</li>
-      </ul>
-    </div>
     <h3 id="fourchettes">Intervalles à 90&nbsp;%</h3>
     <p>Les tableaux par âge et par diplôme des instituts proviennent d'échantillons de quelques centaines à quelques milliers de personnes ; leur marge d'erreur se répercute sur les estimations par zone. Pour la mesurer, le script <code>scripts/incertitude.py</code> (commande <code>make incertitude</code>, une vingtaine de secondes) refait 100 fois les étapes 4 et 5. À chaque répétition, chaque tableau publié (un sondage, une hypothèse, une tranche d'âge ou un groupe de diplôme, y compris le tableau par âge du Cevipof) est tiré aléatoirement, avec un effectif égal au nombre estimé de suffrages exprimés du sondage multiplié par la part du groupe parmi les votants. Pour chaque zone (tranche d'âge × diplôme) et chaque candidat, on retient le 5<sup>e</sup> et le 95<sup>e</sup> centile du score parmi les exprimés.</p>
     <p>Le tableau de sélection les affiche entre parenthèses, après le score parmi les exprimés, par exemple « 31,4&nbsp;% exp. (28-32) ». Lorsque la sélection couvre plusieurs zones, l'intervalle est la moyenne de leurs bornes, pondérée par leurs suffrages exprimés ; on suppose ainsi que les erreurs vont dans le même sens d'une zone à l'autre, ce qui conduit à un intervalle plutôt large que trop étroit. Le site ne les affiche que s'ils ont été calculés sur les données affichées, c'est-à-dire avec la même empreinte que <code>data.json</code>.</p>
@@ -365,12 +334,6 @@
     <h3>Précision</h3>
     <p>Les lignes de pixels étant entières, une année d'âge occupe huit ou neuf lignes selon l'arrondi. À partir de 26 ans, une case compte donc en moyenne 6&nbsp;% de pixels en trop ou en moins, un peu plus dans les petites cases ; dans les très petites cases de 95 ans et plus, l'écart peut atteindre le double, ou la case peut ne compter aucun pixel. Avant 21 ans, l'écart moyen atteint 22&nbsp;%, car les bords des couloirs sont interpolés linéairement entre deux âges pour rester réguliers, alors que la composition par diplôme y change rapidement. Sur de grandes zones, ces écarts se compensent, et la correction <var>b<sub>k</sub></var> conserve à chaque couleur sa part des voix. Les chiffres de la sélection ne dépendent pas de ces pixels : les générations et l'ensemble des inscrits additionnent directement leurs cases âge × diplôme, et, pour un contour tracé à la main, chaque pixel sélectionné est pondéré par le nombre d'inscrits de sa case divisé par son nombre de pixels.</p>
     <p>Sur l'ensemble des hypothèses et des styles, avec ou sans liseré, les surfaces dessinées s'écartent des voix de 0,03&nbsp;point au plus. À l'échelle d'une case, en revanche, l'emplacement des taches résulte d'un tirage : un nouveau tirage les déplace, sans modifier leur surface totale ni la tendance par âge et par diplôme. C'est pourquoi la lecture doit se faire par zones (sélection, générations) et non point par point.</p>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Ajouter une correction finale exacte des surfaces, en réaffectant les quelques pixels excédentaires, pour obtenir un écart nul.</li>
-        <li>Proposer un mode sans tirage aléatoire (bandes ordonnées dans chaque case), permettant de lire des valeurs précises.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
@@ -405,18 +368,13 @@
       <li>γ relève d'un choix de représentation et non d'une donnée. À γ = 8, la pyramide accentue délibérément les bastions ; la forme obtenue à γ = 1 est la plus fidèle.</li>
       <li>Ces pyramides héritent de toutes les fragilités des étapes 2 à 5, en particulier de celles du croisement entre âge et diplôme.</li>
     </ul>
-    <div class="pistes"><b>Pistes d'amélioration</b>
-      <ul>
-        <li>Afficher la valeur de γ dans la légende de chaque image, afin qu'une image diffusée ne soit pas lue comme la répartition effective.</li>
-      </ul>
-    </div>
     </details>
   </section>
 
   <!-- 8 -->
   <section class="etape" id="bilan">
-    <h2><span class="num">8</span> Bilan, limites et pistes</h2>
-    <p class="resume">Le nombre d'inscrits et la représentation graphique sont solides ; la participation l'est moins. La principale faiblesse tient à ce que le vote croisé par âge et par diplôme est estimé par un modèle, faute de données publiées. La meilleure façon de l'améliorer serait d'exploiter les réponses individuelles de l'enquête du Cevipof.</p>
+    <h2><span class="num">8</span> Bilan et limites</h2>
+    <p class="resume">Le nombre d'inscrits et la représentation graphique sont solides ; la participation l'est moins. La principale faiblesse tient à ce que le vote croisé par âge et par diplôme est estimé par un modèle, faute de données publiées.</p>
     <table class="fiab-tab">
       <thead><tr><th>Étape</th><th>Fiabilité</th><th>Principale faiblesse</th></tr></thead>
       <tbody>
@@ -429,14 +387,6 @@
         <tr><td>7. Électorat par candidat</td><td><span class="fiab f2">Assez solide</span></td><td>La concentration γ accentue délibérément les bastions.</td></tr>
       </tbody>
     </table>
-    <h3>Améliorations, par ordre de priorité</h3>
-    <ol class="priorites">
-      <li>Données individuelles du Cevipof (étape 3). C'est le seul moyen d'observer le croisement entre âge et diplôme au lieu de le modéliser. Gain très important ; nécessite une demande d'accès chercheur.</li>
-      <li>Informations propres à 2027 sur la participation (étape 2) : corriger le profil de 2022 par la certitude d'aller voter mesurée par âge et par diplôme dans les sondages. Ce serait le moyen de saisir une mobilisation propre à 2027 ; l'effort est faible, les données étant publiées.</li>
-      <li>Mesure de l'incertitude (étape 5). Elle est en place pour les tableaux par âge et par diplôme (intervalles à 90&nbsp;% de la sélection, voir <a href="#fourchettes">l'étape 5</a>) ; il resterait à y intégrer la marge d'erreur nationale de chaque sondage et une moyenne de plusieurs sondages.</li>
-      <li>Autres sources pour le diplôme (étape 4). Gain moyen ; l'effort dépend des publications des instituts.</li>
-      <li>Taux d'inscription par diplôme (étape 1). Gain faible à moyen ; effort faible si l'INSEE publie ce taux.</li>
-    </ol>
     <h3 id="reglages">Paramètres fixés sans source</h3>
     <p>Quelques constantes du calcul ne reposent sur aucune source et ont été fixées par choix. Le tableau présente l'effet de chacune, divisée ou multipliée par 3, toutes choses égales par ailleurs, sur des profils où elle intervient. L'indice rapporte le score dans le groupe au score d'ensemble ; un indice de 1,22 correspond à une surreprésentation de 22&nbsp;%. Calcul : <code>scripts/sensibilite.py</code>.</p>
     <table class="petit-tab" id="t-sensibilite"></table>
@@ -447,7 +397,7 @@
       <li>Il s'agit d'intentions de vote et non de votes. À plusieurs mois du scrutin, les intentions, et plus encore la participation, évoluent. La pyramide décrit l'état des sondages et non le résultat de 2027.</li>
       <li>Les marges d'erreur augmentent dans les sous-groupes. Un sondage de 1 000 suffrages exprimés a une marge de 2 à 3&nbsp;points au niveau national, et bien davantage sur une tranche d'âge. Les petites cases (plus de 90 ans, jeunes diplômés de bac+5) sont les plus fragiles.</li>
       <li>Les profils évoluent lentement. Lorsqu'un candidat progresse dans un sondage, sa progression est répartie selon le profil moyen des instituts, et non selon ce que ce sondage mesure chez les jeunes ou les retraités.</li>
-      <li>Les profils empruntés (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Agnès Lagarde) servent de point de départ et d'appui ; les tableaux publiés par les instituts les corrigent, d'autant plus qu'ils sont nombreux.</li>
+      <li>Les profils empruntés (Bruno Retailleau pour David Lisnard, Édouard Philippe pour Christine Lagarde) servent de point de départ et d'appui ; les tableaux publiés par les instituts les corrigent, d'autant plus qu'ils sont nombreux.</li>
       <li>Ces résultats ne permettent aucune conclusion individuelle. Qu'un groupe vote à 40&nbsp;% pour un candidat ne dit rien du vote d'une personne de ce groupe : l'âge et le diplôme n'expliquent qu'une faible partie des comportements individuels.</li>
     </ul>
   </section>
@@ -495,9 +445,9 @@
   </section>
   <nav class="retour bas"><a href="#">↑ Haut de page</a></nav>
 </article>
-<script src="registre.js?v=53dcf27"></script>
-<script src="taches.js?v=53dcf27"></script>
-<script src="common.js?v=53dcf27"></script>
-<script src="methodes.js?v=53dcf27"></script>
+<script src="registre.js?v=de4f695"></script>
+<script src="taches.js?v=de4f695"></script>
+<script src="common.js?v=de4f695"></script>
+<script src="methodes.js?v=de4f695"></script>
 </body>
 </html>

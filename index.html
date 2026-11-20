@@ -7,8 +7,8 @@
 <title>Carte sociale du vote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=53dcf27">
-<script src="theme.js?v=53dcf27"></script>
+<link rel="stylesheet" href="style.css?v=de4f695">
+<script src="theme.js?v=de4f695"></script>
 </head>
 <body>
 <div class="wrap">
@@ -20,11 +20,13 @@
 
   <section class="stage" aria-label="Carte">
     <div class="controls deux">
-      <div class="ctl avec-loupe">
+      <div class="ctl">
         <div class="row"><label for="temp">Partage des taches</label><output id="temp_o"></output></div>
         <input type="range" id="temp" min="0.05" max="1" step="0.05" value="0.45">
         <div class="ends"><span>Candidat en tête seul</span><span>Proportionnel aux scores</span></div>
-        <p class="contraste" id="contraste" title="Part moyenne de la surface de chaque zone (tranche d'âge × diplôme) dessinée d'une autre couleur que celle du modèle. En dessous de 1, le réglage accentue le candidat en tête de chaque zone, si bien que le dessin grossit les bastions. Le total de chaque candidat reste exact, et les chiffres de la sélection ne dépendent pas de ce réglage. Le regroupement (gravité) accroît encore l'écart, d'où le signe ≥. Détail dans la page Méthodes, étape 6."></p>
+        <div class="loupe" id="contraste" title="Part moyenne de la surface de chaque zone (tranche d'âge × diplôme) dessinée d'une autre couleur que celle du modèle. En dessous de 1, le réglage accentue le candidat en tête de chaque zone, si bien que le dessin grossit les bastions. Le total de chaque candidat reste exact, et les chiffres de la sélection ne dépendent pas de ce réglage. Le regroupement (gravité) accroît encore l'écart, d'où le signe ≥. Détail dans la page Méthodes, étape 6.">
+          <span class="loupe-nom">Effet loupe <small>surface déplacée</small></span><span class="loupe-barre"><i></i></span><span class="loupe-val"></span>
+        </div>
       </div>
       <div class="ctl">
         <div class="row"><label for="grain">Taille des taches</label><output id="grain_o"></output></div>
@@ -113,9 +115,9 @@
     <p class="foot">Sources et détail des calculs : <a href="methodes.html">page Méthodes</a>.</p>
   </aside>
 </div>
-<script src="registre.js?v=53dcf27"></script>
-<script src="taches.js?v=53dcf27"></script>
-<script src="common.js?v=53dcf27"></script>
-<script src="app.js?v=53dcf27"></script>
+<script src="registre.js?v=de4f695"></script>
+<script src="taches.js?v=de4f695"></script>
+<script src="common.js?v=de4f695"></script>
+<script src="app.js?v=de4f695"></script>
 </body>
 </html>

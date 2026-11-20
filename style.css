@@ -19,8 +19,8 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.1re
 .stage,.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
 .stage{display:flex;flex-direction:column;gap:12px}
 .controls{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:10px 18px;align-items:end}
-@media (max-width:700px){.controls{grid-template-columns:minmax(0,1fr)}.controls .contraste{position:static}}
-.controls.deux{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:700px){.controls{grid-template-columns:minmax(0,1fr)}}
+.controls.deux{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
 @media (max-width:700px){.controls.deux{grid-template-columns:minmax(0,1fr)}}
 .ctl-hyp{margin:2px 0 10px}
 .ctl{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:.84rem}
@@ -29,8 +29,13 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.1re
 .ctl input[type=range]{width:100%;accent-color:var(--fg);margin:2px 0}
 .ctl select{font:inherit;padding:6px 8px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
 .ends{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
-.ctl.avec-loupe{position:relative}
-.contraste{position:absolute;left:0;right:0;top:100%;margin:3px 0 0;font-size:.74rem;color:var(--fg);cursor:help;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* effet loupe du partage des taches : jauge de la part de surface redessinée d'une autre couleur que le modèle */
+.loupe{display:grid;grid-template-columns:auto minmax(40px,1fr) auto;align-items:center;gap:8px;margin-top:6px;padding:5px 9px;border-radius:7px;background:var(--chip);font-size:.76rem;cursor:help}
+.loupe-nom{color:var(--fg)}
+.loupe-nom small{color:var(--muted);font-size:inherit;margin-left:3px}
+.loupe-barre{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.loupe-barre i{display:block;height:100%;width:var(--l,0%);border-radius:3px;background:var(--lc,var(--muted));transition:width .2s}
+.loupe-val{font-family:var(--f-mono);color:var(--fg);white-space:nowrap}
 .toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .opt{display:flex;align-items:center;gap:6px;font-size:.84rem;color:var(--muted)}
 .btn{font:inherit;font-size:.84rem;font-weight:500;padding:6px 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
@@ -200,13 +205,10 @@ body>nav.onglets{max-width:1360px;margin:0 auto 14px}
 .construction .etape h2{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
 .construction .etape h2 .fiab{font-family:var(--f-body)}
 .construction h3{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:1.5em 0 .3em}
-.construction .pistes{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 16px 4px;margin-top:1.4em;font-size:.94rem}
-.construction .pistes ul{margin:.4em 0}
 .petit-tab{border-collapse:collapse;font-size:.86rem;margin:.6em 0 1em;font-variant-numeric:tabular-nums;display:block;overflow-x:auto}
 .petit-tab th,.petit-tab td{padding:4px 12px 4px 0;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 .petit-tab th{font-size:.74rem;color:var(--muted);font-weight:600}
 .petit-tab td:first-child,.petit-tab th:first-child{text-align:left}
-.construction .priorites li{margin:.5em 0}
 .graphe{margin:1.2em 0 1.6em;padding:0}
 .graphe figcaption{font-size:.95rem;margin-bottom:4px}
 .graphe figcaption b{display:block;font-weight:600}
