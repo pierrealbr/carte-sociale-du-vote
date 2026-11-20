@@ -487,6 +487,17 @@ const GENS = [
   { nom: "Millennials", lettre: "Y", ans: "1981-96", min: 29, max: 44, coul: "#e8842c" },
   { nom: "Génération Z", lettre: "Z", ans: "1997-2007", min: 18, max: 28, coul: "#e8457f" },
 ];
+// sur une seule colonne (téléphone, tablette), le tableau de sélection passe juste sous la carte
+const UNE_COLONNE = matchMedia("(max-width:1000px)");
+function placerSelection() {
+  if (VUE) return;                                   // vue intégrée : pas de panneau
+  const bloc = $("bloc-sel");
+  if (UNE_COLONNE.matches) document.querySelector(".mapbox").after(bloc);
+  else document.querySelector(".panel .foot").before(bloc);
+}
+UNE_COLONNE.addEventListener("change", placerSelection);
+placerSelection();
+
 function generations() {
   const box = $("gens"); box.innerHTML = "";
   for (const g of GENS) {

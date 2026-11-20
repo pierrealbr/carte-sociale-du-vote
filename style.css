@@ -52,7 +52,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .gen:hover .txt,.gen.on .txt{text-decoration:underline;text-underline-offset:2px}
 .gen.on .bar{box-shadow:0 0 0 2px var(--fg)}
 .gen .lettre{display:none;font:600 .72rem var(--f-body);align-self:center}
-@media (max-width:700px){.mapbox{grid-template-columns:30px 26px minmax(0,1fr)}.gen{gap:3px}.gen .txt{display:none}.gen .lettre{display:block}}
+@media (max-width:700px){.mapbox{grid-template-columns:12px 26px minmax(0,1fr)}.gen{gap:0;right:2px}.gen .txt{display:none}}
+/* sur une seule colonne, le bloc « Sélection » est déplacé sous la carte (app.js, placerSelection) */
+.stage>#bloc-sel{margin:10px 0 4px}
 #draw{touch-action:none;cursor:crosshair}
 .tag.inline{margin:0}
 .kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
