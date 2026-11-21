@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carte sociale du vote, 2022</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css?v=ed663c0">
+<script src="theme.js?v=ed663c0"></script>
+<style>
+  .mapbox.sans-gens{grid-template-columns:0 34px minmax(0,1fr)}
+  @media (max-width:700px){.mapbox.sans-gens{grid-template-columns:0 26px minmax(0,1fr)}}
+  .panel p{margin:0 0 .6em;font-size:.88rem;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="onglets" aria-label="Pages du site"><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
+    <h1>Élection présidentielle de 2022</h1>
+    <p class="sub">Les 46,7&nbsp;millions d'inscrits de métropole et des départements d'outre-mer répartis par âge et par diplôme, chaque électorat occupant une surface proportionnelle à ses voix <span id="tour_txt">au premier tour du 10 avril 2022</span> ; l'abstention et les votes blancs et nuls sont représentés de la même façon.</p>
+  </header>
+
+  <section class="stage" aria-label="Carte">
+    <div class="toolbar" id="tour" role="radiogroup" aria-label="Tour affiché"></div>
+
+    <div class="controls deux">
+      <div class="ctl">
+        <div class="row"><label for="temp">Partage des taches</label><output id="temp_o"></output></div>
+        <input type="range" id="temp" min="0.05" max="1" step="0.05" value="0.7">
+        <div class="ends"><span>Candidat en tête seul</span><span>Proportionnel aux scores</span></div>
+      </div>
+      <div class="ctl">
+        <div class="row"><label for="grain">Taille des taches</label><output id="grain_o"></output></div>
+        <input type="range" id="grain" min="2" max="14" step="1" value="3">
+        <div class="ends"><span>Fines</span><span>Grosses</span></div>
+      </div>
+    </div>
+
+    <details class="reglages">
+      <summary>Plus de réglages des taches</summary>
+      <div class="controls">
+        <div class="ctl">
+          <div class="row"><label for="grav">Regroupement (gravité)</label><output id="grav_o"></output></div>
+          <input type="range" id="grav" min="0" max="4" step="0.25" value="1.25">
+          <div class="ends"><span>Aucun</span><span>Maximal</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="portee">Portée de la gravité</label><output id="portee_o"></output></div>
+          <input type="range" id="portee" min="4" max="40" step="2" value="6">
+          <div class="ends"><span>Voisins proches</span><span>Loin</span></div>
+        </div>
+        <div class="ctl">
+          <div class="row"><label for="etir">Forme des taches</label><output id="etir_o"></output></div>
+          <input type="range" id="etir" min="1" max="6" step="0.5" value="1.5">
+          <div class="ends"><span>Rondes</span><span>Allongées (le long des âges)</span></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="toolbar">
+      <label class="opt" for="style">Style</label>
+      <select id="style" class="style-sel" aria-label="Préréglage du style des taches"></select>
+      <label class="opt"><input type="checkbox" id="dlines" checked> Lignes de diplôme</label>
+      <button type="button" class="btn" id="reseed">Nouveau tirage</button>
+      <label class="opt zoom" for="zoom">Zoom <input type="range" id="zoom" min="55" max="100" step="5" value="85"> <output id="zoom_o">85 %</output></label>
+      <span class="spacer"></span>
+      <span class="status" id="status" aria-live="polite"></span>
+    </div>
+
+    <div class="toolbar">
+      <span class="tag inline">Sélection</span>
+      <span class="spacer"></span>
+      <label class="opt"><input type="checkbox" id="toutsel"> Tout sélectionner</label>
+      <label class="opt"><input type="checkbox" id="add"> Ajouter à la sélection</label>
+      <button type="button" class="btn" id="undo">Annuler</button>
+      <button type="button" class="btn" id="clear">Effacer</button>
+    </div>
+
+    <div class="mapbox sans-gens">
+      <div></div>
+      <div class="yax" id="yax" aria-hidden="true"></div>
+      <div class="map" id="map">
+        <canvas id="tiles" role="img" aria-label="Pyramide des inscrits de 2022 par âge et diplôme, en taches colorées par candidat"></canvas>
+        <canvas id="over" aria-hidden="true"></canvas>
+        <canvas id="draw" aria-label="Zone de dessin du lasso"></canvas>
+        <div class="side-l">Bac ou moins</div>
+        <div class="side-r">Supérieur</div>
+      </div>
+      <div></div><div></div>
+      <div class="xax" id="xax" aria-hidden="true"></div>
+    </div>
+    <div class="legende">
+      <div class="chips" id="chips" role="group" aria-label="Légende : résultats officiels du tour affiché (cliquer pour masquer un candidat)"></div>
+      <div class="links"><span class="hint-l">Cliquez sur un candidat pour le masquer.</span><button type="button" class="linkbtn" id="all">Tout afficher</button><button type="button" class="linkbtn" id="none">Tout masquer</button></div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div id="bloc-sel">
+      <div class="tag" id="seltitle">Sélection</div>
+      <div id="sel"></div>
+    </div>
+    <div>
+      <div class="tag">Lecture</div>
+      <p>L'axe vertical donne l'âge au 1<sup>er</sup> janvier 2022. À chaque âge, la largeur de la pyramide est proportionnelle au nombre d'inscrits ; les diplômés du supérieur sont à droite de l'axe, les autres à gauche, du baccalauréat (près de l'axe) à l'absence de diplôme (au bord). Les lignes pointillées séparent les six niveaux de diplôme.</p>
+      <p>Dans chaque case d'âge et de diplôme, la couleur d'un point est tirée selon la part estimée de chaque candidat, puis les points de même couleur sont regroupés en taches. La surface totale de chaque couleur est égale à ses voix. Avec un partage des taches inférieur à 1, le tirage accentue le candidat en tête de chaque zone ; les surfaces d'ensemble n'en dépendent pas. Les chiffres de la sélection, tracée au lasso, sont tirés du modèle et non des taches : ils ne dépendent d'aucun réglage du dessin.</p>
+    </div>
+    <div>
+      <div class="tag">Sources et méthode</div>
+      <p>Les inscrits sont les Français du recensement de 2022 (INSEE), calés par tranche de cinq ans d'âge sur le répertoire électoral unique au 9 mars 2022 (Insee Focus n°&nbsp;264). On suppose qu'à âge égal le taux d'inscription ne dépend pas du diplôme.</p>
+      <p>La participation par âge et par diplôme suit l'enquête participation électorale 2022 de l'INSEE (Insee Première n°&nbsp;1928 et 1929), qui donne la participation à chacun des deux tours dans trois grandes tranches d'âge. Elle est calée sur la participation officielle du champ, soit 75,3&nbsp;% au premier tour et 73,3&nbsp;% au second. Les votes blancs et nuls représentent dans chaque case la part observée sur le champ : 2,2&nbsp;% des votants au premier tour, 8,8&nbsp;% au second.</p>
+      <p>La répartition des voix dans chaque case combine un effet de l'âge et un effet du diplôme propres à chaque candidat. Ces effets sont calés sur les tableaux par âge et par diplôme des enquêtes Ipsos / Sopra Steria sur la sociologie des électorats (4&nbsp;000 inscrits, interrogés du 6 au 9 avril 2022 pour le premier tour et du 21 au 23 avril pour le second), préalablement ajustés aux résultats définitifs du ministère de l'Intérieur ; l'ajustement déplace les tableaux d'Ipsos de 2,3&nbsp;points au plus au premier tour et de 1,5&nbsp;point au second. Au premier tour, Philippe Poutou et Nathalie Arthaud sont regroupés, comme dans l'enquête.</p>
+      <p>Le champ est celui du recensement : la métropole et les cinq départements d'outre-mer. Les Français établis hors de France et les collectivités d'outre-mer en sont exclus, si bien que les scores diffèrent de quelques dixièmes de point des résultats nationaux (Emmanuel Macron obtient sur le champ 27,6&nbsp;% des exprimés au premier tour et 58,1&nbsp;% au second, contre 27,8&nbsp;% et 58,5&nbsp;% sur l'ensemble).</p>
+      <p>Limites : l'enquête Ipsos ne croise pas l'âge et le diplôme ; on suppose donc que leurs effets s'additionnent (à l'échelle logarithmique). Les groupes « inférieur au bac » et « bac+3 et plus » d'Ipsos couvrent chacun deux de nos niveaux, qui reçoivent le même effet du diplôme.</p>
+    </div>
+  </aside>
+</div>
+<script src="taches.js?v=ed663c0"></script>
+<script src="carte-2022.js?v=ed663c0"></script>
+</body>
+</html>

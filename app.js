@@ -17,6 +17,18 @@ const state = { hyp: null, T: 0.45, grain: 5, seed: 1, shown: {}, dlines: true, 
 let H_ = null;                       // hypothèse courante : {cands, SH, LOGSH, TARGET, TOT}
 let NOISE = new Map(), NOISE_KEY = "";
 let LAB = null;
+// ---------- Français de l'étranger : carré à part, à la même échelle que la pyramide (aire = inscrits). L'aire de la
+// carte vaut (X1 - X0) inscrits × (AGE1 - AGE0) ans ; le carré en occupe la fraction f, d'où son côté en % de la largeur.
+function etranger() {
+  const e = D.etranger, box = $("etranger"); if (!e) return;
+  const f = e.inscrits / ((X1 - X0) * (AGE1 - AGE0)), cote = Math.sqrt(f * 820 / 1100);   // .map : aspect 1100/820
+  box.style.setProperty("--cote", (cote * 100).toFixed(2) + "%");
+  box.style.setProperty("--vot", (e.participation * 100).toFixed(1) + "%");
+  $("etr-ins").textContent = (e.inscrits / 1e6).toLocaleString("fr-FR", { maximumFractionDigits: 2 }) + " M d'inscrits";
+  $("etr-part").textContent = fmtP(e.participation).replace(/,\d/, "") + " de votants (2022)";
+  box.hidden = false;
+}
+
 // ---------- géométrie : bornes des couloirs de diplôme à chaque âge (en inscrits)
 // ordre gauche (du centre vers l'extérieur) : Bac, CAP-BEP, Sans diplôme ; droite : Bac+2, Bac+3/4, Bac+5
 function geometrie() {
@@ -613,7 +625,7 @@ chargerJSON("data.json").then(data => {
   D = data; lisser(); D.total = D.inscrits.flat().reduce((a, b) => a + b, 0);
   if (!VUE) try { const z = localStorage.getItem("zoom"); if (z) $("zoom").value = z; } catch (e) {}
   state.zoom = $("zoom").value / 100; $("zoom_o").textContent = $("zoom").value + " %";
-  geometrie(); axes();
+  geometrie(); axes(); etranger();
   const sel = $("hyp"); remplirHypotheses(sel);
   if (ADR.get("hyp") in D.hypotheses) sel.value = ADR.get("hyp");
   // état laissé au dernier passage sur la page (etatPage, common.js) ; jamais dans une vue intégrée
@@ -696,7 +708,7 @@ chargerJSON("data.json").then(data => {
   $("zoom").addEventListener("input", e => { $("zoom_o").textContent = e.target.value + " %"; });
   $("zoom").addEventListener("change", e => {
     state.zoom = e.target.value / 100; try { localStorage.setItem("zoom", e.target.value); } catch (err) {}
-    geometrie(); axes(); chargerHypothese(state.hyp); redim(); lancer(true);   // nouveau cadrage : on recalcule tout
+    geometrie(); axes(); etranger(); chargerHypothese(state.hyp); redim(); lancer(true);   // nouveau cadrage : on recalcule tout
   });
   $("undo").addEventListener("click", () => selectionner(shapes.slice(0, -1), shapes.length > 2 ? `${shapes.length - 1} formes` : shapes.length === 2 ? "Votre zone" : ""));
   new ResizeObserver(() => { axes(); if (LAB) superposer(); redim(); }).observe(draw);

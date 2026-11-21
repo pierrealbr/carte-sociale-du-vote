@@ -7,8 +7,8 @@
 <title>Carte sociale du vote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=9be120b">
-<script src="theme.js?v=9be120b"></script>
+<link rel="stylesheet" href="style.css?v=ed663c0">
+<script src="theme.js?v=ed663c0"></script>
 </head>
 <body>
 <div class="wrap">
@@ -86,6 +86,10 @@
         <canvas id="draw" aria-label="Zone de dessin du lasso"></canvas>
         <div class="side-l">Bac ou moins</div>
         <div class="side-r">Supérieur</div>
+        <div class="etranger" id="etranger" hidden title="Les Français inscrits sur les listes consulaires ne figurent ni dans le recensement ni dans les sondages : on ne connaît ni leur âge ni leur diplôme, et ils ne sont pas placés dans la pyramide. Le carré a la même échelle que la pyramide (surface proportionnelle au nombre d'inscrits). La partie foncée représente les votants, d'après leur participation au premier tour de 2022 ; leur vote n'est pas estimé. Ils ne sont pas comptés dans la sélection.">
+          <div class="etr-carre"><i class="etr-abs"></i><i class="etr-vot"></i></div>
+          <div class="etr-txt"><b>Français de l'étranger</b><span id="etr-ins"></span><span id="etr-part"></span></div>
+        </div>
       </div>
       <div></div><div></div>
       <div class="xax" id="xax" aria-hidden="true"></div>
@@ -115,9 +119,9 @@
     <p class="foot">Sources et détail des calculs : <a href="methodes.html">page Méthodes</a>.</p>
   </aside>
 </div>
-<script src="registre.js?v=9be120b"></script>
-<script src="taches.js?v=9be120b"></script>
-<script src="common.js?v=9be120b"></script>
-<script src="app.js?v=9be120b"></script>
+<script src="registre.js?v=ed663c0"></script>
+<script src="taches.js?v=ed663c0"></script>
+<script src="common.js?v=ed663c0"></script>
+<script src="app.js?v=ed663c0"></script>
 </body>
 </html>
