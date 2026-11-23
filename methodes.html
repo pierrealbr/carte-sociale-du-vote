@@ -7,8 +7,8 @@
 <title>Méthodes · Carte sociale du vote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=ed663c0">
-<script src="theme.js?v=ed663c0"></script>
+<link rel="stylesheet" href="style.css?v=f152f8c">
+<script src="theme.js?v=f152f8c"></script>
 </head>
 <body>
 <nav class="onglets" aria-label="Pages du site"><a href="index.html">Présentation</a><a href="carte.html">Carte</a><a href="electorats.html">Électorat par candidat</a><a href="methodes.html" aria-current="page">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
@@ -361,6 +361,7 @@
     <p>Renforcement. Un réglage multiplie l'épaisseur par un facteur <var>r</var> compris entre 1 et 3 : <var>e</var>′<sub><var>k</var></sub> = min(1, <var>r</var> × <var>e<sub>k</sub></var>). À 1, la surface colorée est égale aux voix. Au-delà, elle les excède : les zones où l'électorat est peu présent mais réel deviennent visibles, au prix de la proportionnalité entre surface et voix. Comme la concentration, ce réglage accentue certains traits et ne constitue pas une mesure.</p>
     <p>c. Superposition. La figure principale superpose les couches. En chaque point :</p>
     <p class="formule">teinte = Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var> × couleur<sub><var>k</var></sub> / Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var>, &nbsp; couverture = min(1, Σ<sub><var>k</var></sub> <var>e<sub>k</sub></var>)</p>
+    <p>Mesure de la déformation. Une jauge placée sous les réglages indique la part des électeurs dessinés ailleurs que dans la représentation fidèle (γ = 1, sans renforcement) : Σ<sub><var>c</var></sub> max(0, <var>e</var>′<sub><var>k</var></sub>(<var>c</var>) − <var>e</var><sup>(1)</sup><sub><var>k</var></sub>(<var>c</var>)) × <var>N</var>(<var>c</var>) / Voix<sub><var>k</var></sub>, en moyenne sur les candidats pondérée par leurs voix (l'abstention et les votes blancs et nuls sont exclus). Sans renforcement, la quantité de couleur est inchangée et la mesure donne la part des électeurs déplacés ; avec un renforcement, la couleur ajoutée au-delà des voix s'y ajoute. Au réglage d'ouverture (γ = 8), un peu plus de la moitié des électeurs sont ainsi dessinés hors de leur place fidèle, ce qui rappelle que ces pyramides montrent où se concentrent les électorats plutôt que leur répartition exacte. La valeur propre à chaque candidat s'affiche au survol de sa pyramide.</p>
     <p>L'ordre des candidats est sans effet. À γ = 1, abstention comprise, Σ <var>e<sub>k</sub></var> = 1 en tout point : la pyramide est entièrement couverte, en teintes mêlées. Plus γ est élevé, plus certaines zones restent blanches ; ce sont les cases qu'aucun candidat ne domine suffisamment pour y concentrer sa couleur (à γ = 8, 19&nbsp;% de la surface reste pâle).</p>
     <p>d. Petits candidats. Les candidats recueillant moins de 3,5&nbsp;% des suffrages exprimés sont regroupés en deux couches, « Petits candidats de gauche » et « Petits candidats de droite » (droite et extrême droite), dont les voix et les parts sont additionnées. Eric Zemmour et Nicolas Dupont-Aignan sont toujours rattachés à la couche de droite, même lorsque Eric Zemmour dépasse le seuil (3,5 à 4,5&nbsp;% selon les sondages). Un petit candidat seul dans son camp reste représenté séparément. Les sondages ne comptent que quelques dizaines de leurs électeurs par tranche d'âge : leur profil propre relèverait surtout de l'aléa d'échantillonnage, que la concentration amplifierait.</p>
     <h3>Hypothèses et conséquences</h3>
@@ -445,9 +446,9 @@
   </section>
   <nav class="retour bas"><a href="#">↑ Haut de page</a></nav>
 </article>
-<script src="registre.js?v=ed663c0"></script>
-<script src="taches.js?v=ed663c0"></script>
-<script src="common.js?v=ed663c0"></script>
-<script src="methodes.js?v=ed663c0"></script>
+<script src="registre.js?v=f152f8c"></script>
+<script src="taches.js?v=f152f8c"></script>
+<script src="common.js?v=f152f8c"></script>
+<script src="methodes.js?v=f152f8c"></script>
 </body>
 </html>

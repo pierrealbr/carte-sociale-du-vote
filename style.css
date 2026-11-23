@@ -324,3 +324,5 @@ html.vue .mapbox{grid-template-columns:0 30px minmax(0,1fr)}
 .etranger .etr-txt{position:absolute;top:32px;left:calc(14px + var(--cote) + 8px);display:flex;flex-direction:column;align-items:flex-start;font:.7rem/1.35 var(--f-body);color:#4a5060;text-align:left;background:color-mix(in srgb,var(--paper) 85%,transparent);padding:1px 4px 2px 2px;border-radius:3px;pointer-events:auto;cursor:help}
 .etr-txt b{color:#1d2230;font-weight:600}
 @media (max-width:700px){.etranger .etr-txt span{display:none}.etranger .etr-txt{font-size:.62rem}}
+.ep-deform{grid-column:2/4;margin-top:0}
+@media (max-width:620px){.ep-deform{grid-column:auto}}

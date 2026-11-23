@@ -38,7 +38,7 @@ function chargerHypothese(nomHyp) {
 // Épaisseur de la couche dans une case = min(1, λ · part^γ) ; λ est choisi pour que la peinture
 // déposée (épaisseur × inscrits) égale les voix du candidat. γ = 1 : épaisseur = part exacte.
 const PT_COUL = { "Abstention": "#3b3e48", "Blancs et nuls": "#8a857a", [PETITS_G]: "#b08a96", [PETITS_D]: "#7d8aa6" };          // l'abstention, trop pâle en gris clair, passe en gris foncé
-function epaisseurs(k, gamma) {
+function epaisseurs(k, gamma, boost = $("boost") ? +$("boost").value : 1) {
   const n = NA * ND, w = lisserAge(H_.SH[k]).map(v => Math.pow(v, gamma)), ins = new Float64Array(n);
   for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) ins[i * ND + d] = D.inscritsLisses[i][d];
   const depot = l => { let s = 0; for (let c = 0; c < n; c++) s += Math.min(1, l * w[c]) * ins[c]; return s; };
@@ -46,8 +46,16 @@ function epaisseurs(k, gamma) {
   for (let it = 0; it < 70; it++) { const m = (lo + hi) / 2; depot(Math.exp(m)) < H_.TOT[k] ? lo = m : hi = m; }
   const l = Math.exp((lo + hi) / 2);
   // renforcement : épaisseur multipliée par un facteur ≥ 1 (la peinture déposée dépasse alors les voix)
-  const boost = $("boost") ? +$("boost").value : 1;
   return Float32Array.from(w, v => Math.min(1, boost * l * v));
+}
+// Déformation due aux réglages : couleur placée ailleurs que dans le dessin fidèle (γ = 1, sans renforcement), ou
+// ajoutée par le renforcement, en part des voix : Σ max(0, e − e₁) × inscrits / voix. Sans renforcement, c'est la
+// part des électeurs déplacés (la quantité totale ne change pas) ; avec, s'y ajoute la couleur en plus.
+function deformation(k, gamma) {
+  const e = epaisseurs(k, gamma), e1 = epaisseurs(k, 1, 1);
+  let s = 0;
+  for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) { const c = i * ND + d; s += Math.max(0, e[c] - e1[c]) * D.inscritsLisses[i][d]; }
+  return s / H_.TOT[k];
 }
 // ks : un ou plusieurs candidats. Superposés, les couches se combinent sans ordre :
 // teinte = moyenne des couleurs pondérée par les épaisseurs, couverture = min(1, somme des épaisseurs).
