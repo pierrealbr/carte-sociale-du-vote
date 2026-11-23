@@ -48,14 +48,16 @@ function epaisseurs(k, gamma, boost = $("boost") ? +$("boost").value : 1) {
   // renforcement : épaisseur multipliée par un facteur ≥ 1 (la peinture déposée dépasse alors les voix)
   return Float32Array.from(w, v => Math.min(1, boost * l * v));
 }
-// Déformation due aux réglages : couleur placée ailleurs que dans le dessin fidèle (γ = 1, sans renforcement), ou
-// ajoutée par le renforcement, en part des voix : Σ max(0, e − e₁) × inscrits / voix. Sans renforcement, c'est la
-// part des électeurs déplacés (la quantité totale ne change pas) ; avec, s'y ajoute la couleur en plus.
+// Déformation due aux réglages, par rapport au dessin fidèle (γ = 1, sans renforcement, épaisseurs e₁), en part des
+// voix V. Ajoutés : couleur déposée au-delà des voix par le renforcement, (Σ e × N − V) / V. Déplacés : couleur retirée
+// de sa place fidèle pour être mise ailleurs, Σ max(0, e₁ − e) × N / V (sans renforcement, la quantité ne change pas).
 function deformation(k, gamma) {
   const e = epaisseurs(k, gamma), e1 = epaisseurs(k, 1, 1);
-  let s = 0;
-  for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) { const c = i * ND + d; s += Math.max(0, e[c] - e1[c]) * D.inscritsLisses[i][d]; }
-  return s / H_.TOT[k];
+  let dep = 0, tot = 0;
+  for (let i = 0; i < NA; i++) for (let d = 0; d < ND; d++) {
+    const c = i * ND + d, n = D.inscritsLisses[i][d]; dep += Math.max(0, e1[c] - e[c]) * n; tot += e[c] * n;
+  }
+  return { dep: dep / H_.TOT[k], aj: Math.max(0, tot / H_.TOT[k] - 1) };
 }
 // ks : un ou plusieurs candidats. Superposés, les couches se combinent sans ordre :
 // teinte = moyenne des couleurs pondérée par les épaisseurs, couverture = min(1, somme des épaisseurs).

@@ -7,8 +7,8 @@
 <title>Électorat par candidat · Carte sociale du vote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="style.css?v=f152f8c">
-<script src="theme.js?v=f152f8c"></script>
+<link rel="stylesheet" href="style.css?v=2135df0">
+<script src="theme.js?v=2135df0"></script>
 </head>
 <body>
 <nav class="onglets" aria-label="Pages du site"><a href="index.html">Présentation</a><a href="carte.html">Carte</a><a href="electorats.html" aria-current="page">Électorat par candidat</a><a href="methodes.html">Méthodes</a><a href="limites.html">Limites</a><label class="theme"><input type="checkbox" id="theme"> Mode clair</label></nav>
@@ -33,8 +33,13 @@
         <input type="range" id="boost" min="1" max="3" step="0.1" value="1">
         <div class="ends"><span>Fidèle aux voix</span><span>Présence accentuée</span></div>
       </div>
-      <div class="loupe ep-deform" id="deform" title="Part des électeurs des candidats (moyenne pondérée par les voix) dessinés ailleurs que dans la représentation fidèle, où l'épaisseur de la couche est égale à la part du candidat (concentration 1, sans renforcement). Avec un renforcement, la couleur ajoutée au-delà des voix est comptée en plus. Le détail par candidat s'affiche au survol de sa pyramide. Méthodes, étape 7.">
-        <span class="loupe-nom">Déformation <small>électeurs déplacés</small></span><span class="loupe-barre"><i></i></span><span class="loupe-val"></span>
+      <div class="ep-deform">
+        <div class="loupe" id="deform" title="Part des électeurs des candidats (moyenne pondérée par les voix) dessinés ailleurs que dans la représentation fidèle, où l'épaisseur de la couche est égale à la part du candidat (concentration 1, sans renforcement). Dépend surtout de la concentration. Le détail par candidat s'affiche au survol de sa pyramide. Méthodes, étape 7.">
+          <span class="loupe-nom">Déplacés</span><span class="loupe-barre"><i></i></span><span class="loupe-val"></span>
+        </div>
+        <div class="loupe" id="ajout" title="Couleur dessinée au-delà des voix par le renforcement, en part des voix (moyenne des candidats pondérée par les voix). Sans renforcement, elle est nulle et la quantité de couleur est égale aux voix. Méthodes, étape 7.">
+          <span class="loupe-nom">Ajoutés</span><span class="loupe-barre"><i></i></span><span class="loupe-val"></span>
+        </div>
       </div>
     </div>
   </header>
@@ -57,9 +62,9 @@
     <p>Dans chaque case, l'épaisseur de la couche est égale à la part du candidat, élevée à la puissance fixée par le réglage de concentration, sans pouvoir dépasser une couche pleine ; la quantité totale reste égale au nombre de voix. Avec une concentration de 1, l'épaisseur correspond exactement à la part du candidat. Le renforcement multiplie cette épaisseur par un facteur, toujours dans la limite d'une couche pleine : au-delà de 1, la surface n'est plus proportionnelle aux voix, mais la présence de l'électorat devient plus visible. La barre placée sous chaque pyramide indique le nombre de voix, à la même échelle pour tous les candidats. L'âge figure en ordonnée ; les niveaux inférieurs ou égaux au baccalauréat sont à gauche, l'enseignement supérieur à droite. Les parts sont lissées sur quelques années d'âge.</p>
   </div>
 </div>
-<script src="registre.js?v=f152f8c"></script>
-<script src="common.js?v=f152f8c"></script>
-<script src="pyramides.js?v=f152f8c"></script>
-<script src="electorats.js?v=f152f8c"></script>
+<script src="registre.js?v=2135df0"></script>
+<script src="common.js?v=2135df0"></script>
+<script src="pyramides.js?v=2135df0"></script>
+<script src="electorats.js?v=2135df0"></script>
 </body>
 </html>

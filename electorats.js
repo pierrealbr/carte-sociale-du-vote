@@ -24,19 +24,21 @@ function peinture() {
   const rang = k => k === ia ? 3 : !estExprime(H_.cands[k]) ? 2 : estPetits(H_.cands[k]) ? 1 : 0;   // petits candidats, blancs et nuls, puis abstention en fin de grille
   const ordre = [...Array(K).keys()].sort((a, b) => rang(a) - rang(b) || H_.TOT[b] - H_.TOT[a]);
   ORDRE = ordre; superposee();
-  // jauge : déformation moyenne des pyramides des candidats, pondérée par leurs voix (abstention et blancs exclus)
+  // jauges : déformation moyenne des pyramides des candidats, pondérée par leurs voix (abstention et blancs exclus)
   const kd = ordre.filter(k => estExprime(H_.cands[k])), def = new Map(kd.map(k => [k, deformation(k, gamma)]));
-  const dm = kd.reduce((s, k) => s + def.get(k) * H_.TOT[k], 0) / expr, el = $("deform");
-  el.style.setProperty("--l", Math.min(100, dm / .6 * 100) + "%");
-  el.style.setProperty("--lc", dm < .1 ? "#3f9e6a" : dm < .3 ? "#e0a020" : "#d94a3a");
-  el.querySelector(".loupe-val").textContent = dm < 5e-4 ? "0 %" : fmtP(dm);
-  el.querySelector(".loupe-nom small").textContent = +$("boost").value > 1 ? "électeurs déplacés ou ajoutés" : "électeurs déplacés";
+  const moy = f => kd.reduce((s, k) => s + def.get(k)[f] * H_.TOT[k], 0) / expr;
+  const jauge = (id, v, plein, s1, s2) => { const el = $(id);
+    el.style.setProperty("--l", Math.min(100, v / plein * 100) + "%");
+    el.style.setProperty("--lc", v < s1 ? "#3f9e6a" : v < s2 ? "#e0a020" : "#d94a3a");
+    el.querySelector(".loupe-val").textContent = v < 5e-4 ? "0 %" : fmtP(v); };
+  jauge("deform", moy("dep"), .6, .1, .3);
+  jauge("ajout", moy("aj"), 1, .1, .3);
   const g = $("ptgrid"); g.innerHTML = "";
   for (const k of ordre) {
     const abst = !estExprime(H_.cands[k]), col = couleur(k), v = fmtM(H_.TOT[k]) + " M";
     const carte = document.createElement("div"); carte.className = "pt-carte";
     const grp = estPetits(H_.cands[k]) ? `<div class="membres" title="Candidats recueillant moins de ${fmtP(SEUIL_PETITS)} des suffrages exprimés, regroupés par camp">${H_.membres[H_.cands[k]].join(", ")}</div>` : "";
-    if (def.has(k)) carte.title = `Déformation due aux réglages : ${fmtP(def.get(k))} de ses électeurs dessinés hors de leur place fidèle${+$("boost").value > 1 ? " ou ajoutés par le renforcement" : ""}.`;
+    if (def.has(k)) carte.title = `Déformation due aux réglages : électeurs déplacés ${fmtP(def.get(k).dep)}, ajoutés par le renforcement ${fmtP(def.get(k).aj)} (en part de ses voix).`;
     carte.innerHTML = `<div class="t"><b><i style="background:${col}"></i>${court(k, ia)}</b><small>${abst ? v + " · " + fmtP(H_.TOT[k] / D.total) + " des ins." : v + " · " + fmtP(H_.TOT[k] / expr) + " · " + fmtP(H_.TOT[k] / D.total) + " ins."}</small></div>${grp}`
       + `<canvas role="img" aria-label="Où se trouvent les électeurs ${deNom(H_.cands[k])}"></canvas><div class="pt-barre"><i style="width:${(H_.TOT[k] / max * 100).toFixed(1)}%;background:${col}"></i></div>`;
     g.appendChild(carte);
